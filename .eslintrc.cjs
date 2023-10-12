@@ -1,0 +1,89 @@
+/* eslint-env node */
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    "plugin:react/recommended",
+    'plugin:react-hooks/recommended',
+    'plugin:@typescript-eslint/strict-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked',
+  ],
+  rules: {
+    'semi': ['error', 'always'],
+    'quotes': ['warn', 'single'],
+    'indent': ['warn', 2, {
+      'FunctionDeclaration': {
+        'body': 1,
+        'parameters': 2,
+      },
+      'MemberExpression': 2,
+      'SwitchCase': 1,
+    }],
+    'comma-dangle': ['warn', 'only-multiline'],
+    'func-style': ['warn', 'declaration', {
+      'allowArrowFunctions': false,
+    }],
+    'simple-import-sort/imports': 'warn',
+    'simple-import-sort/exports': 'warn',
+    'object-curly-spacing': ['warn', 'always'],
+    'object-curly-newline': ['warn', {
+      'multiline': true,
+      'minProperties': 2,
+      'consistent': true,
+    }],
+    "import-newlines/enforce": [
+      'warn',
+      {
+        "items": 1,
+        "semi": true
+      }
+    ],
+    "destructuring-newline/object-property-newline": ['warn'],
+    'react/display-name': ['off'],
+    'react/react-in-jsx-scope': ['off'],
+    'react/jsx-max-props-per-line': ['warn', { maximum: 1 }],
+    'react/jsx-indent-props': ['warn', 2],
+    'react/jsx-first-prop-new-line': ['warn', 'multiline-multiprop'],
+    'react/jsx-closing-bracket-location': ['warn', 'tag-aligned'],
+    '@typescript-eslint/consistent-type-imports': ['warn', {}],
+    '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
+    '@typescript-eslint/prefer-readonly': ['warn'],
+    '@typescript-eslint/prefer-readonly-parameter-types': ['warn', {
+      'allow': [
+        // DOM lib
+        { 'from': 'lib', 'name': ['Event'] },
+        // React
+        {
+          'from': 'package',
+          'package': 'react',
+          'name': [
+            'ComponentType',
+            'ComponentClass',
+            'FunctionComponent',
+            'Element',
+          ],
+        },
+        // RxJS
+        {
+          'from': 'package',
+          'package': 'rxjs',
+          'name': [
+            'Observer',
+          ],
+        },
+      ],
+    }],
+  },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: true,
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
+  },
+  plugins: [
+    '@typescript-eslint',
+    'simple-import-sort',
+    'destructuring-newline',
+    'import-newlines',
+  ],
+  root: true,
+};
