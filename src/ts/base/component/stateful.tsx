@@ -13,7 +13,7 @@ import type {
 
 export function createStatefulComponent<
   ComponentProps,
-  P extends { readonly events?: never } = { readonly events: never },
+  P extends { readonly events?: never } = { readonly events?: never },
 >(
     Stateless: ComponentType<
       EmittingComponentProps<EventlessComponentProps<ComponentProps> & P, EventlessComponentProps<ComponentProps>>

@@ -1,23 +1,20 @@
 import { AbstractSynchronousComponentTransformer } from 'base/component/transformer';
+import type { CakeInputProps } from 'component/cake/input/types';
 
-import type {
-  CakeInputEvents,
-  CakeInputSectionProps
-} from '../component';
 import type { CakeInputServesProps } from './component';
 
 export class CakeInputServesTransformer
   extends AbstractSynchronousComponentTransformer<
     CakeInputServesProps,
     CakeInputServesProps,
-    CakeInputSectionProps,
-    CakeInputEvents
+    CakeInputProps,
+    CakeInputProps
   > {
 
   override transformSourceEvent(
     { serves }: CakeInputServesProps,
-    { cake }: CakeInputEvents,
-  ): CakeInputEvents {
+    { cake }: CakeInputProps,
+  ): CakeInputProps {
     return {
       cake: {
         ...cake,
@@ -26,7 +23,7 @@ export class CakeInputServesTransformer
     };
   }
 
-  override extractSourceProps({ cake: { serves } }: CakeInputEvents): CakeInputServesProps {
+  override extractSourceProps({ cake: { serves } }: CakeInputProps): CakeInputServesProps {
     return { serves };
   }
 }
