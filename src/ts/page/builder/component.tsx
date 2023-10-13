@@ -1,7 +1,6 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { createComponentAdaptor } from 'base/component/adaptor';
-import type { EmittingComponentProps } from 'base/component/emitting';
 import { createStatefulComponent } from 'base/component/stateful';
 import { Display } from 'base/display';
 import type {
@@ -17,10 +16,7 @@ import { CakePreview as CakePreviewImpl } from 'component/cake/preview/component
 import { MasterDetail } from 'component/master_detail/component';
 import type { Cake } from 'domain/model';
 import type { Key } from 'react';
-import {
-  useCallback,
-  useMemo
-} from 'react';
+import { useMemo } from 'react';
 import type { Observer } from 'rxjs';
 
 export type CakeBuilderProps = {
@@ -36,63 +32,41 @@ export function CakeBuilder({
 }: CakeBuilderProps) {
   const { _ } = useLingui();
 
-  // TODO simplify HoCs
-  const CakeServesComponent = useMemo(function () {
-    return createComponentAdaptor<CakeInputServesProps, CakeInputServesProps, CakeInputProps, CakeInputProps>(
+  const StatefulCakeServes = useMemo(function () {
+    return createComponentAdaptor<CakeInputServesProps, CakeInputProps>(
       CakeInputServes,
       (targetEvents: Observer<CakeInputProps>) => new CakeInputServesTransformer(targetEvents),
     );
   }, []);
 
-  // TODO don't recreate every time the cake changes
-  const ServesComponent = useCallback(function () {
-    return (
-      <CakeServesComponent
-        cake={cake}
-        events={events}
-      />
-    );
-  }, [cake, events, CakeServesComponent]);
-
+  // create the
   const sectionServes = useMemo<CakeInputSection<Key>>(function () {
     return {
       key: 'serves',
       title: _(msg`Servings`),
-      Component: ServesComponent,
+      element: (
+        <StatefulCakeServes
+          cake={cake}
+          events={events}
+        />
+      ),
     };
-  }, [_, ServesComponent]);
+  }, [_, StatefulCakeServes, cake, events]);
 
-  // TODO don't recreate every time the sections change
-  const CakeInput = useCallback(function ({
-    expanded,
-    events
-  }: EmittingComponentProps<CakeInputEvents<Key>>) {
-    return (
-      <CakeInputImpl
-        sections={[sectionServes]}
-        expanded={expanded}
-        events={events}
-      />
-    );
-  }, [sectionServes]);
-
+  // store which section is open
   const StatefulCakeInput = useMemo(function () {
-    return createStatefulComponent<CakeInputEvents<Key>>(CakeInput, {
+    return createStatefulComponent<CakeInputEvents<Key>, {
+      readonly sections: readonly CakeInputSection<Key>[],
+      readonly events?: never,
+    }>(CakeInputImpl, {
       expanded: null,
     });
-  }, [CakeInput]);
-
-  // TODO don't recreate every time the cake changes
-  const CakePreview = useCallback(function () {
-    return (
-      <CakePreviewImpl cake={cake}/>
-    );
-  }, [cake]);
+  }, []);
 
   return (
     <MasterDetail
-      Master={StatefulCakeInput}
-      Detail={CakePreview}
+      master={<StatefulCakeInput sections={[sectionServes]}/>}
+      detail={<CakePreviewImpl cake={cake}/>}
       direction={display === Display.Comfortable ? 'row' : 'column'}
     />
   );

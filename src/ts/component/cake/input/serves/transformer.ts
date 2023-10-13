@@ -6,8 +6,6 @@ import type { CakeInputServesProps } from './component';
 export class CakeInputServesTransformer
   extends AbstractSynchronousComponentTransformer<
     CakeInputServesProps,
-    CakeInputServesProps,
-    CakeInputProps,
     CakeInputProps
   > {
 

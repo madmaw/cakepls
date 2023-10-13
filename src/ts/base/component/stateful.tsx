@@ -16,7 +16,10 @@ export function createStatefulComponent<
   P extends { readonly events?: never } = { readonly events?: never },
 >(
     Stateless: ComponentType<
-      EmittingComponentProps<EventlessComponentProps<ComponentProps> & P, EventlessComponentProps<ComponentProps>>
+      EmittingComponentProps<
+        EventlessComponentProps<ComponentProps> & P,
+        EventlessComponentProps<ComponentProps>
+      >
     >,
     initialState: Omit<ComponentProps, 'events'>,
 ) {
@@ -27,9 +30,7 @@ export function createStatefulComponent<
     }, []);
     useEffect(function () {
       const subscription = subject.subscribe(setState);
-      return function() {
-        subscription.unsubscribe();
-      };
+      return subscription.unsubscribe.bind(subscription);
     }, [setState, subject]);
     return (
       <Stateless

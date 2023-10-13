@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import type { ComponentType } from 'react';
 
 type DirectionProps = {
   readonly direction: 'row' | 'column',
@@ -18,20 +17,20 @@ const MasterContainer = styled.div({ flexGrow: 0 });
 const DetailContainer = styled.div({ flexGrow: 1 });
 
 export function MasterDetail({
-  Master,
-  Detail,
+  master,
+  detail,
   direction,
 }: {
-  readonly Master: ComponentType,
-  readonly Detail: ComponentType,
+  readonly master: JSX.Element,
+  readonly detail: JSX.Element,
 } & DirectionProps) {
   return (
     <Container direction={direction}>
       <MasterContainer>
-        <Master/>
+        {master}
       </MasterContainer>
       <DetailContainer>
-        <Detail/>
+        {detail}
       </DetailContainer>
     </Container>
   );

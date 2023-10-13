@@ -5,10 +5,7 @@ import {
   Typography
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
-import type {
-  ComponentType,
-  Key,
-} from 'react';
+import type { Key } from 'react';
 import {
   Fragment,
   useCallback
@@ -22,7 +19,7 @@ export type CakeInputEvents<T> = {
 export type CakeInputSection<T> = {
   readonly key: T,
   readonly title: string | JSX.Element,
-  readonly Component: ComponentType,
+  readonly element: JSX.Element,
 };
 
 export type CakeInputProps<T> = {
@@ -53,7 +50,7 @@ function CakeInputSectionComponent<T extends Key = Key>({
   // linter doesn't support nested destructuring
   // eslint-disable-next-line destructuring-newline/object-property-newline
   section: {
-    Component,
+    element,
     key,
     title,
   },
@@ -80,7 +77,7 @@ function CakeInputSectionComponent<T extends Key = Key>({
         <Typography>{ title }</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Component/>
+        {element}
       </AccordionDetails>
     </Accordion>
   );

@@ -18,6 +18,7 @@ export function CakeInputServes({
   const { _ } = useLingui();
 
   const onChange = useCallback(function (_1: Event, value: number | readonly number[]) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     events.next({ serves: value as Serves });
   }, [events]);
 

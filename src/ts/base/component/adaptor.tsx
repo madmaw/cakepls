@@ -17,9 +17,9 @@ import type { ComponentTransformer } from './transformer';
 
 export function createComponentAdaptor<
   SourceProps,
-  SourceEvents,
-  TargetProps = SourceProps,
-  TargetEvents = SourceEvents,
+  TargetProps,
+  SourceEvents = SourceProps,
+  TargetEvents = TargetProps,
 >(
     Source: EmittingComponent<
       SourceProps,
@@ -27,10 +27,12 @@ export function createComponentAdaptor<
     >,
     transformerFactory: (targetEvents: Observer<TargetEvents>) => ComponentTransformer<
       SourceProps,
-      SourceEvents,
-      EventlessComponentProps<EmittingComponentProps<TargetProps, TargetEvents>>
+      EventlessComponentProps<EmittingComponentProps<TargetProps, TargetEvents>>,
+      SourceEvents
     >,
 ): EmittingComponent<TargetProps, TargetEvents> {
+  // TODO creates compiler errors
+  //const MemoisedSource = memo(Source);
   return function ({
     events,
     ...targetProps

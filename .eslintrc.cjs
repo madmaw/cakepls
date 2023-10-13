@@ -4,6 +4,8 @@ module.exports = {
     'eslint:recommended',
     "plugin:react/recommended",
     'plugin:react-hooks/recommended',
+    //'plugin:import/recommended',
+    'plugin:import/typescript',
     'plugin:@typescript-eslint/strict-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
   ],
@@ -18,12 +20,16 @@ module.exports = {
       'MemberExpression': 2,
       'SwitchCase': 1,
     }],
+    'eqeqeq': ['warn', 'always', {
+      'null': 'never',
+    }],
     'comma-dangle': ['warn', 'only-multiline'],
     'func-style': ['warn', 'declaration', {
       'allowArrowFunctions': false,
     }],
     'simple-import-sort/imports': 'warn',
     'simple-import-sort/exports': 'warn',
+    'prefer-destructuring': 'warn',
     'object-curly-spacing': ['warn', 'always'],
     'object-curly-newline': ['warn', {
       'multiline': true,
@@ -38,6 +44,7 @@ module.exports = {
       }
     ],
     "destructuring-newline/object-property-newline": ['warn'],
+    'import/no-relative-parent-imports': ['warn'],
     'react/display-name': ['off'],
     'react/react-in-jsx-scope': ['off'],
     'react/jsx-max-props-per-line': ['warn', { maximum: 1 }],
@@ -47,6 +54,9 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': ['warn', {}],
     '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
     '@typescript-eslint/prefer-readonly': ['warn'],
+    '@typescript-eslint/consistent-type-assertions': ['warn', {
+      'assertionStyle': 'never',
+    }],
     '@typescript-eslint/prefer-readonly-parameter-types': ['warn', {
       'allow': [
         // DOM lib
@@ -60,6 +70,8 @@ module.exports = {
             'ComponentClass',
             'FunctionComponent',
             'Element',
+            'SyntheticEvent',
+            'Attributes',
           ],
         },
         // RxJS
@@ -68,6 +80,7 @@ module.exports = {
           'package': 'rxjs',
           'name': [
             'Observer',
+            'Observable',
           ],
         },
       ],
@@ -84,6 +97,13 @@ module.exports = {
     'simple-import-sort',
     'destructuring-newline',
     'import-newlines',
+    'import',
   ],
   root: true,
+  settings: {
+    'import/resolver': {
+      //'typescript': true,
+      'node': true,
+    }
+  },
 };

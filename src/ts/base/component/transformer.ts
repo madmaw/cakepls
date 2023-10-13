@@ -1,14 +1,14 @@
 import type { Observer } from 'rxjs';
 
-export type ComponentTransformer<SourceProps, SourceEvents, TargetProps> = {
+export type ComponentTransformer<SourceProps, TargetProps, SourceEvents> = {
 
   consumeSourceEvent(sourceEvent: SourceEvents, targetProps: TargetProps): void;
 
   extractSourceProps(targetProps: TargetProps): SourceProps;
 };
 
-export abstract class AbstractComponentTransformer<SourceProps, SourceEvents, TargetProps, TargetEvents>
-implements ComponentTransformer<SourceProps, SourceEvents, TargetProps> {
+export abstract class AbstractComponentTransformer<SourceProps, TargetProps, SourceEvents, TargetEvents>
+implements ComponentTransformer<SourceProps, TargetProps, SourceEvents> {
   constructor(
     protected readonly targetEvents: Observer<TargetEvents>,
   ) {}
@@ -18,8 +18,12 @@ implements ComponentTransformer<SourceProps, SourceEvents, TargetProps> {
   abstract extractSourceProps(targetProps: TargetProps): SourceProps;
 }
 
-export abstract class AbstractSynchronousComponentTransformer<SourceProps, SourceEvents, TargetProps, TargetEvents>
-  extends AbstractComponentTransformer<SourceProps, SourceEvents, TargetProps, TargetEvents> {
+export abstract class AbstractSynchronousComponentTransformer<
+  SourceProps,
+  TargetProps,
+  SourceEvents = SourceProps,
+  TargetEvents = TargetProps
+> extends AbstractComponentTransformer<SourceProps, TargetProps, SourceEvents, TargetEvents> {
 
   override consumeSourceEvent(sourceEvent: SourceEvents, targetProps: TargetProps): void {
     this.targetEvents.next(this.transformSourceEvent(sourceEvent, targetProps));
@@ -29,7 +33,7 @@ export abstract class AbstractSynchronousComponentTransformer<SourceProps, Sourc
 }
 
 export class PassThroughComponentTransformer<SourceProps, SourceEvents>
-  extends AbstractSynchronousComponentTransformer<SourceProps, SourceEvents, SourceProps, SourceEvents> {
+  extends AbstractSynchronousComponentTransformer<SourceProps, SourceProps, SourceEvents, SourceEvents> {
 
   override transformSourceEvent(sourceEvent: SourceEvents): SourceEvents {
     return sourceEvent;
