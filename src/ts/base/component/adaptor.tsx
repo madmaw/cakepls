@@ -13,6 +13,7 @@ import type {
   EmittingComponentProps,
   EventlessComponentProps
 } from './emitting';
+import { safeMemo } from './memoized_component';
 import type { ComponentTransformer } from './transformer';
 
 export function createComponentAdaptor<
@@ -31,8 +32,7 @@ export function createComponentAdaptor<
       SourceEvents
     >,
 ): EmittingComponent<TargetProps, TargetEvents> {
-  // TODO creates compiler errors
-  //const MemoisedSource = memo(Source);
+  const MemoisedSource = safeMemo(Source);
   return function ({
     events,
     ...targetProps
@@ -43,6 +43,8 @@ export function createComponentAdaptor<
     const sourceProps = useMemo(function () {
       return transformer.extractSourceProps(targetProps);
     }, [targetProps, transformer]);
+    // create subject here (as opposed to in the containing factory function) as
+    // a component can be rendered in multiple places at once, thus have multiple instances
     const sourceEvents = useMemo(function () {
       return new Subject<SourceEvents>();
     }, []);
@@ -76,7 +78,7 @@ export function createComponentAdaptor<
     }, [targetPropsSubject, targetProps]);
 
     return (
-      <Source
+      <MemoisedSource
         {...sourceProps}
         events={sourceEvents}
       />

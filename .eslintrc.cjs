@@ -4,7 +4,6 @@ module.exports = {
     'eslint:recommended',
     "plugin:react/recommended",
     'plugin:react-hooks/recommended',
-    //'plugin:import/recommended',
     'plugin:import/typescript',
     'plugin:@typescript-eslint/strict-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
@@ -43,6 +42,13 @@ module.exports = {
         "semi": true
       }
     ],
+    'no-unused-vars': 'off', // or "@typescript-eslint/no-unused-vars": "off",
+    '@typescript-eslint/no-unused-vars': 'off',
+		'unused-imports/no-unused-imports': "error",
+		'unused-imports/no-unused-vars': [
+			'warn',
+			{ 'vars': 'all', 'varsIgnorePattern': '^_', 'args': 'after-used', 'argsIgnorePattern': '^_' },
+		],
     "destructuring-newline/object-property-newline": ['warn'],
     'import/no-relative-parent-imports': ['warn'],
     'react/display-name': ['off'],
@@ -98,6 +104,7 @@ module.exports = {
     'destructuring-newline',
     'import-newlines',
     'import',
+    'unused-imports',
   ],
   root: true,
   settings: {

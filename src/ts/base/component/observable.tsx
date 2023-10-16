@@ -41,8 +41,8 @@ export type ObservableComponentProps<Props, K extends keyof Props> = Omit<Props,
 
 export type ObservableComponent<Props, K extends keyof Props> = ComponentType<ObservableComponentProps<Props, K>>;
 
+/*
 // TODO can just use `useObservable`, which is more elegant and versatile
-//
 export function unwrapObservableComponent<Props, K extends keyof Props>(
     Component: ObservableComponent<Props, K>,
     capturedKey: K,
@@ -95,3 +95,4 @@ export function wrapUnobservableComponent<Props, K extends keyof Props>(
     );
   };
 }
+*/

@@ -10,6 +10,7 @@ import type {
   EmittingComponentProps,
   EventlessComponentProps
 } from './emitting';
+import { safeMemo } from './memoized_component';
 
 export function createStatefulComponent<
   ComponentProps,
@@ -23,6 +24,7 @@ export function createStatefulComponent<
     >,
     initialState: Omit<ComponentProps, 'events'>,
 ) {
+  const MemoisedStateless = safeMemo(Stateless);
   return function (p: P) {
     const [state, setState] = useState<EventlessComponentProps<ComponentProps>>(initialState);
     const subject = useMemo(function () {
@@ -33,7 +35,7 @@ export function createStatefulComponent<
       return subscription.unsubscribe.bind(subscription);
     }, [setState, subject]);
     return (
-      <Stateless
+      <MemoisedStateless
         {...p}
         {...state}
         events={subject}

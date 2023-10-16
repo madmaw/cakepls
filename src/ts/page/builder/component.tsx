@@ -1,17 +1,10 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import { createComponentAdaptor } from 'base/component/adaptor';
-import { createStatefulComponent } from 'base/component/stateful';
+import { usePartialComponent } from 'base/component/partial';
 import { Display } from 'base/display';
-import type {
-  CakeInputEvents,
-  CakeInputSection
-} from 'component/cake/input/component';
-import { CakeInput as CakeInputImpl } from 'component/cake/input/component';
-import type { CakeInputServesProps } from 'component/cake/input/serves/component';
-import { CakeInputServes } from 'component/cake/input/serves/component';
-import { CakeInputServesTransformer } from 'component/cake/input/serves/transformer';
-import type { CakeInputProps } from 'component/cake/input/types';
+import type { CakeInputSection } from 'component/cake/input/component';
+import { StatefulCakeInput } from 'component/cake/input/component';
+import { CakeInputServes } from 'component/cake/input/serves';
 import { CakePreview as CakePreviewImpl } from 'component/cake/preview/component';
 import { MasterDetail } from 'component/master_detail/component';
 import type { Cake } from 'domain/model';
@@ -32,36 +25,24 @@ export function CakeBuilder({
 }: CakeBuilderProps) {
   const { _ } = useLingui();
 
-  const StatefulCakeServes = useMemo(function () {
-    return createComponentAdaptor<CakeInputServesProps, CakeInputProps>(
-      CakeInputServes,
-      (targetEvents: Observer<CakeInputProps>) => new CakeInputServesTransformer(targetEvents),
-    );
-  }, []);
+  const CakeInputServesCake = usePartialComponent<
+    { readonly cake: Cake },
+    { readonly events: Observer<{ readonly cake: Cake }>}
+  >(
+    CakeInputServes,
+    { cake },
+  );
 
-  // create the
+  // create the sections
   const sectionServes = useMemo<CakeInputSection<Key>>(function () {
     return {
       key: 'serves',
       title: _(msg`Servings`),
       element: (
-        <StatefulCakeServes
-          cake={cake}
-          events={events}
-        />
+        <CakeInputServesCake events={events}/>
       ),
     };
-  }, [_, StatefulCakeServes, cake, events]);
-
-  // store which section is open
-  const StatefulCakeInput = useMemo(function () {
-    return createStatefulComponent<CakeInputEvents<Key>, {
-      readonly sections: readonly CakeInputSection<Key>[],
-      readonly events?: never,
-    }>(CakeInputImpl, {
-      expanded: null,
-    });
-  }, []);
+  }, [_, CakeInputServesCake, events]);
 
   return (
     <MasterDetail

@@ -5,6 +5,7 @@ import {
   Typography
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
+import { createStatefulComponent } from 'base/component/stateful';
 import type { Key } from 'react';
 import {
   Fragment,
@@ -25,6 +26,13 @@ export type CakeInputSection<T> = {
 export type CakeInputProps<T> = {
   readonly sections: readonly CakeInputSection<T>[],
 } & CakeInputEvents<T>;
+
+export const StatefulCakeInput = createStatefulComponent<CakeInputEvents<Key>, {
+  readonly sections: readonly CakeInputSection<Key>[],
+  readonly events?: never,
+}>(CakeInput, {
+  expanded: null,
+});
 
 
 export function CakeInput<T extends Key = Key>({
