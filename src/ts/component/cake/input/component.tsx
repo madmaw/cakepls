@@ -6,7 +6,10 @@ import {
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import { createStatefulComponent } from 'base/component/stateful';
-import type { Key } from 'react';
+import type {
+  ComponentType,
+  Key
+} from 'react';
 import {
   Fragment,
   useCallback
@@ -20,7 +23,7 @@ export type CakeInputEvents<T> = {
 export type CakeInputSection<T> = {
   readonly key: T,
   readonly title: string | JSX.Element,
-  readonly element: JSX.Element,
+  readonly Component: ComponentType,
 };
 
 export type CakeInputProps<T> = {
@@ -58,7 +61,7 @@ function CakeInputSectionComponent<T extends Key = Key>({
   // linter doesn't support nested destructuring
   // eslint-disable-next-line destructuring-newline/object-property-newline
   section: {
-    element,
+    Component,
     key,
     title,
   },
@@ -85,7 +88,7 @@ function CakeInputSectionComponent<T extends Key = Key>({
         <Typography>{ title }</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {element}
+        <Component/>
       </AccordionDetails>
     </Accordion>
   );

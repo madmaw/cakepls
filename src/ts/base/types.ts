@@ -9,3 +9,7 @@ export type OneOf<
   V extends unknown[],
   NK extends keyof V = Exclude<keyof V, keyof unknown[]>
 > = { [K in NK]: T extends V[K] ? V[K] : never }[NK];
+
+export type DeepReadonly<T> = {
+  readonly [P in keyof T]: DeepReadonly<T[P]>;
+}

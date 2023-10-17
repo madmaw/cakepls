@@ -93,7 +93,7 @@ export abstract class AbstractSynchronousComponentAdaptor<
 }
 
 /**
- * Degenerate implementat of the ComponentAdaptor interface where the source and target prop
+ * Degenerate implementation of the ComponentAdaptor interface where the source and target prop
  * and event types are the same
  */
 export class PassThroughComponentAdaptor<SourceProps, SourceEvents>

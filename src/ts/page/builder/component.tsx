@@ -1,10 +1,13 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
+import type { EmittingComponentProps } from 'base/component/emitting';
 import { usePartialComponent } from 'base/component/partial';
 import { Display } from 'base/display';
 import type { CakeInputSection } from 'component/cake/input/component';
 import { StatefulCakeInput } from 'component/cake/input/component';
+import { CakeInputIcing } from 'component/cake/input/icing';
 import { CakeInputServes } from 'component/cake/input/serves';
+import type { CakeInputProps } from 'component/cake/input/types';
 import { CakePreview as CakePreviewImpl } from 'component/cake/preview/component';
 import { MasterDetail } from 'component/master_detail/component';
 import type { Cake } from 'domain/model';
@@ -25,12 +28,20 @@ export function CakeBuilder({
 }: CakeBuilderProps) {
   const { _ } = useLingui();
 
-  const CakeInputServesCake = usePartialComponent<
-    { readonly cake: Cake },
-    { readonly events: Observer<{ readonly cake: Cake }>}
-  >(
+  const ServesComponent = usePartialComponent<EmittingComponentProps<CakeInputProps>>(
     CakeInputServes,
-    { cake },
+    {
+      cake,
+      events,
+    },
+  );
+
+  const IcingComponent = usePartialComponent<EmittingComponentProps<CakeInputProps>>(
+    CakeInputIcing,
+    {
+      cake,
+      events
+    },
   );
 
   // create the sections
@@ -38,15 +49,21 @@ export function CakeBuilder({
     return {
       key: 'serves',
       title: _(msg`Servings`),
-      element: (
-        <CakeInputServesCake events={events}/>
-      ),
+      Component: ServesComponent,
     };
-  }, [_, CakeInputServesCake, events]);
+  }, [_, ServesComponent]);
+
+  const sectionIcing = useMemo<CakeInputSection<Key>>(function () {
+    return {
+      key: 'icing',
+      title: _(msg`Icing`),
+      Component: IcingComponent,
+    };
+  }, [_, IcingComponent]);
 
   return (
     <MasterDetail
-      master={<StatefulCakeInput sections={[sectionServes]}/>}
+      master={<StatefulCakeInput sections={[sectionServes, sectionIcing]}/>}
       detail={<CakePreviewImpl cake={cake}/>}
       direction={display === Display.Comfortable ? 'row' : 'column'}
     />

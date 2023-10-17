@@ -4,7 +4,7 @@ export const MinServes = 1;
 export const MaxServes = 12;
 export type Serves = IntRange<typeof MinServes, typeof MaxServes>;
 
-export enum CakeBaseType {
+export const enum CakeBaseType {
   Butter,
   Carrot,
   Chocolate,
@@ -14,30 +14,30 @@ export enum CakeBaseType {
   White,
 }
 
-export enum ChocolateCakeBaseType {
+export const enum ChocolateCakeBaseType {
   Traditional,
   German,
   DevilsFood,
 }
 
-export enum ButterCakeBaseType {
+export const enum ButterCakeBaseType {
   Yellow,
   Pound,
   Chiffon,
 }
 
-export enum CarrotCakeBaseType {
+export const enum CarrotCakeBaseType {
   Traditional,
   Spice,
   Hummingbird,
 }
 
-export enum WhiteCakeBaseType {
+export const enum WhiteCakeBaseType {
   Traditional,
   Vanilla,
 }
 
-export enum SpongeCakeBaseType {
+export const enum SpongeCakeBaseType {
   Traditional,
   Genoise,
 }
@@ -48,12 +48,9 @@ export type CakeBase = {
     | CakeBaseType.Butter
     | CakeBaseType.Carrot
     | CakeBaseType.Chocolate
-    | CakeBaseType.White
     | CakeBaseType.Sponge
+    | CakeBaseType.White
   >,
-} | {
-  readonly type: CakeBaseType.Chocolate,
-  readonly subtype: ChocolateCakeBaseType,
 } | {
   readonly type: CakeBaseType.Butter,
   readonly subtype: ButterCakeBaseType,
@@ -61,14 +58,18 @@ export type CakeBase = {
   readonly type: CakeBaseType.Carrot,
   readonly subtype: CarrotCakeBaseType,
 } | {
-  readonly type: CakeBaseType.White,
-  readonly subtype: WhiteCakeBaseType,
+  readonly type: CakeBaseType.Chocolate,
+  readonly subtype: ChocolateCakeBaseType,
 } | {
   readonly type: CakeBaseType.Sponge,
   readonly subtype: SpongeCakeBaseType,
+} | {
+  readonly type: CakeBaseType.White,
+  readonly subtype: WhiteCakeBaseType,
 };
 
-export enum IcingType {
+export const enum IcingType {
+  None = 0,
   Boiled,
   Butterscotch,
   CreamCheese,
@@ -83,7 +84,7 @@ export type Icing = {
   readonly type: IcingType,
 };
 
-export enum AdditionalIngredientType {
+export const enum AdditionalIngredientType {
   ChocolateChips,
   Marshmallows,
   Nuts,
@@ -93,7 +94,7 @@ export type AdditionalIngredient = {
   readonly type: AdditionalIngredientType,
 };
 
-export enum ToppingType {
+export const enum ToppingType {
   CandiedFruit,
   Candy,
 }
@@ -102,7 +103,7 @@ export type Topping = {
   readonly type: ToppingType,
 };
 
-export enum DecorationType {
+export const enum DecorationType {
   Candle,
 }
 

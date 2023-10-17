@@ -79,6 +79,7 @@ module.exports = {
             'SyntheticEvent',
             'Attributes',
             'IntrinsicAttributes',
+            'ChangeEvent',
           ],
         },
         // RxJS
@@ -88,6 +89,14 @@ module.exports = {
           'name': [
             'Observer',
             'Observable',
+          ],
+        },
+        // Material UI
+        {
+          'from': 'package',
+          'package': '@mui/material',
+          'name': [
+            'SelectChangeEvent',
           ],
         },
       ],

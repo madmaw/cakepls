@@ -8,9 +8,17 @@ import {
   useObservableValue
 } from './observable';
 
-// Creates a Component that is partially applied with the given props. The returned Component
-// exposes a subset of the total props, with the partially applied props supplied in this hook.
-export function usePartialComponent<CurriedProps, ExposedProps>(
+/**
+ * Creates a Component that is partially applied with the given props. The returned Component
+ * exposes a subset of the total props, with the partially applied props supplied in this hook.
+ * @param Component the component to partially apply props to
+ * @param curriedProps the partially applied props
+ * @returns a partially applied component that exposes the remaining props
+ */
+// I'm not sure what we're supposed to substitute for {} below as the suggestions
+// are either more broad or prevent compilation
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function usePartialComponent<CurriedProps, ExposedProps = {}>(
     Component: ComponentType<CurriedProps & ExposedProps>,
     curriedProps: CurriedProps,
 ): ComponentType<ExposedProps & JSX.IntrinsicAttributes> {
@@ -26,32 +34,22 @@ export function usePartialComponent<CurriedProps, ExposedProps>(
   // Create a component that is partially applied with the exposed props and monitors
   // the `propsStream` for the remaining, curried props
   // TODO forwardRef
-  return useCallback(function (exposedProps: PartialComponentProps<ExposedProps>) {
-    // unfortunately React/TS doesn't recognise callbacks as Components, so we need
-    // to create this Component internally to force it to recognise the hooks
-    // used internally then immediately render that component
-    function TypedPartialComponent (
-        exposedProps: PartialComponentProps<ExposedProps>,
-    ) {
-      // get the latest curried props (will redraw on change)
-      const curriedProps = useObservableValue(
-        curriedPropsStream,
-        defaultCurriedProps,
-      );
-      return (
-        <MemoizedComponent
-          {...exposedProps}
-          {...curriedProps}
-        />
-      );
-    }
-
+  return useCallback(function (exposedProps: RemainingComponentProps<ExposedProps>) {
+    // get the latest curried props (will redraw on change)
+    // this callback is a component, so hooks are fine here, eslint is just too dumb to
+    // recognize that
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const curriedProps = useObservableValue(
+      curriedPropsStream,
+      defaultCurriedProps,
+    );
     return (
-      <TypedPartialComponent
+      <MemoizedComponent
         {...exposedProps}
+        {...curriedProps}
       />
     );
   }, [MemoizedComponent, curriedPropsStream, defaultCurriedProps]);
 }
 
-type PartialComponentProps<ExposedProps> = ExposedProps & Readonly<JSX.IntrinsicAttributes>;
+type RemainingComponentProps<ExposedProps> = ExposedProps & Readonly<JSX.IntrinsicAttributes>;

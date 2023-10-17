@@ -33,7 +33,7 @@ export function App() {
           },
           additionalIngredients: [],
           decorations: [],
-          icing: { type: IcingType.Glaze },
+          icing: { type: IcingType.None },
           serves: 4,
           toppings: [],
         },
