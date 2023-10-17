@@ -1,60 +1,57 @@
 import type { ComponentType } from 'react';
 import { useCallback } from 'react';
-import type { Observable } from 'rxjs';
 
+import { useConstant } from './constant';
 import { useMemoisedComponent as useMemoizedComponent } from './memoized_component';
 import {
   useObservable,
   useObservableValue
 } from './observable';
 
+// Creates a Component that is partially applied with the given props. The returned Component
+// exposes a subset of the total props, with the partially applied props supplied in this hook.
 export function usePartialComponent<CurriedProps, ExposedProps>(
     Component: ComponentType<CurriedProps & ExposedProps>,
-    props: CurriedProps,
-): ComponentType<ExposedProps> {
+    curriedProps: CurriedProps,
+): ComponentType<ExposedProps & JSX.IntrinsicAttributes> {
 
   const MemoizedComponent = useMemoizedComponent(Component);
 
-  const observable = useObservable(props);
-  return useCallback(function (exposedProps: ExposedProps) {
-    const TypedPartialComponent: ComponentType<PartialComponentProps<CurriedProps, ExposedProps>> = PartialComponent;
+  // observable curried props
+  const curriedPropsStream = useObservable(curriedProps);
+
+  // use the first instance of the supplied props as the default props
+  const defaultCurriedProps = useConstant(curriedProps);
+
+  // Create a component that is partially applied with the exposed props and monitors
+  // the `propsStream` for the remaining, curried props
+  // TODO forwardRef
+  return useCallback(function (exposedProps: PartialComponentProps<ExposedProps>) {
+    // unfortunately React/TS doesn't recognise callbacks as Components, so we need
+    // to create this Component internally to force it to recognise the hooks
+    // used internally then immediately render that component
+    function TypedPartialComponent (
+        exposedProps: PartialComponentProps<ExposedProps>,
+    ) {
+      // get the latest curried props (will redraw on change)
+      const curriedProps = useObservableValue(
+        curriedPropsStream,
+        defaultCurriedProps,
+      );
+      return (
+        <MemoizedComponent
+          {...exposedProps}
+          {...curriedProps}
+        />
+      );
+    }
+
     return (
       <TypedPartialComponent
         {...exposedProps}
-        _Component={MemoizedComponent}
-        _observable={observable}
-        _defaultProps={props}
       />
     );
-    // NOTE the default props are intentionally only used once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [MemoizedComponent, observable]);
+  }, [MemoizedComponent, curriedPropsStream, defaultCurriedProps]);
 }
 
-type PartialComponentProps<CurriedProps, ExposedProps> = ExposedProps & {
-  readonly _observable: Observable<CurriedProps>,
-  readonly _Component: ComponentType<CurriedProps & ExposedProps>,
-  readonly _defaultProps: CurriedProps,
-};
-
-function PartialComponent<CurriedProps, ExposedProps>(
-    {
-      _observable: observable,
-      _Component: Component,
-      _defaultProps: defaultProps,
-      ...exposedProps
-    }: PartialComponentProps<CurriedProps, ExposedProps>,
-) {
-  const curriedProps = useObservableValue(
-    observable,
-    defaultProps,
-  );
-  return (
-    <Component
-      // TODO can we avoid this cast with clever typing?
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      {...exposedProps as ExposedProps & JSX.IntrinsicAttributes}
-      {...curriedProps}
-    />
-  );
-}
+type PartialComponentProps<ExposedProps> = ExposedProps & Readonly<JSX.IntrinsicAttributes>;

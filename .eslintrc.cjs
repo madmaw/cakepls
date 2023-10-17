@@ -78,6 +78,7 @@ module.exports = {
             'Element',
             'SyntheticEvent',
             'Attributes',
+            'IntrinsicAttributes',
           ],
         },
         // RxJS

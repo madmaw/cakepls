@@ -10,10 +10,12 @@ import {
   Subject
 } from 'rxjs';
 
+import { useConstantExpression } from './constant';
+
 export function useObservable<T>(t: T) {
-  const subject = useMemo(function () {
+  const subject = useConstantExpression(function () {
     return new Subject<T>();
-  }, []);
+  });
   const observable = useMemo(function () {
     // TODO does sharing cause memory leaks?
     return subject.pipe(shareReplay(1));
