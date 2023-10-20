@@ -3,6 +3,7 @@ import { useLingui } from '@lingui/react';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import { usePartialComponent } from 'base/component/partial';
 import { Display } from 'base/display';
+import { CakeInputCakeBase } from 'component/cake/input/cake_base';
 import type { CakeInputSection } from 'component/cake/input/component';
 import { StatefulCakeInput } from 'component/cake/input/component';
 import { CakeInputIcing } from 'component/cake/input/icing';
@@ -44,6 +45,14 @@ export function CakeBuilder({
     },
   );
 
+  const CakeBaseComponent = usePartialComponent<EmittingComponentProps<CakeInputProps>>(
+    CakeInputCakeBase,
+    {
+      cake,
+      events,
+    }
+  );
+
   // create the sections
   const sectionServes = useMemo<CakeInputSection<Key>>(function () {
     return {
@@ -52,6 +61,14 @@ export function CakeBuilder({
       Component: ServesComponent,
     };
   }, [_, ServesComponent]);
+
+  const sectionCakeBase = useMemo<CakeInputSection<Key>>(function () {
+    return {
+      key: 'cake_base',
+      title: _(msg`Cake Base`),
+      Component: CakeBaseComponent,
+    };
+  }, [_, CakeBaseComponent]);
 
   const sectionIcing = useMemo<CakeInputSection<Key>>(function () {
     return {
@@ -63,7 +80,7 @@ export function CakeBuilder({
 
   return (
     <MasterDetail
-      master={<StatefulCakeInput sections={[sectionServes, sectionIcing]}/>}
+      master={<StatefulCakeInput sections={[sectionServes, sectionCakeBase, sectionIcing]}/>}
       detail={<CakePreviewImpl cake={cake}/>}
       direction={display === Display.Comfortable ? 'row' : 'column'}
     />

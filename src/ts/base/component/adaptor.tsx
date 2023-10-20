@@ -114,7 +114,6 @@ export class PassThroughComponentAdaptor<SourceProps, SourceEvents>
   }
 }
 
-
 /**
  * This function creates an adaptor from the Source to the described Target component. You can then render the
  * Source component using the Target Props and receive the Target events. It is particularly useful when

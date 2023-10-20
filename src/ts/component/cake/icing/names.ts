@@ -29,8 +29,8 @@ export function useIcingName(icingType: IcingType): string {
   }
 }
 
-export function IcingName({ icingType }: {
-  readonly icingType: IcingType
+export function IcingName({ value }: {
+  readonly value: IcingType
 }) {
-  return useIcingName(icingType);
+  return useIcingName(value);
 }

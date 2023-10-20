@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import {
   Accordion,
   AccordionDetails,
@@ -37,7 +38,6 @@ export const StatefulCakeInput = createStatefulComponent<CakeInputEvents<Key>, {
   expanded: null,
 });
 
-
 export function CakeInput<T extends Key = Key>({
   sections,
   expanded,
@@ -56,6 +56,12 @@ export function CakeInput<T extends Key = Key>({
     </Fragment>
   );
 }
+
+const StretchedAccordionDetails = styled(AccordionDetails)`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+`;
 
 function CakeInputSectionComponent<T extends Key = Key>({
   // linter doesn't support nested destructuring
@@ -87,9 +93,9 @@ function CakeInputSectionComponent<T extends Key = Key>({
       <AccordionSummary>
         <Typography>{ title }</Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <StretchedAccordionDetails>
         <Component/>
-      </AccordionDetails>
+      </StretchedAccordionDetails>
     </Accordion>
   );
 }

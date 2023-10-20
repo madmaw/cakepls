@@ -49,6 +49,12 @@ module.exports = {
 			'warn',
 			{ 'vars': 'all', 'varsIgnorePattern': '^_', 'args': 'after-used', 'argsIgnorePattern': '^_' },
 		],
+    'default-case': ['error'],
+    'no-multiple-empty-lines': ['warn', {
+      'max': 1,
+      'maxBOF': 0,
+      'maxEOF': 1,
+    }],
     "destructuring-newline/object-property-newline": ['warn'],
     'import/no-relative-parent-imports': ['warn'],
     'react/display-name': ['off'],
@@ -58,6 +64,7 @@ module.exports = {
     'react/jsx-first-prop-new-line': ['warn', 'multiline-multiprop'],
     'react/jsx-closing-bracket-location': ['warn', 'tag-aligned'],
     '@typescript-eslint/consistent-type-imports': ['warn', {}],
+    '@typescript-eslint/switch-exhaustiveness-check': ['error'],
     '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
     '@typescript-eslint/prefer-readonly': ['warn'],
     '@typescript-eslint/consistent-type-assertions': ['warn', {
