@@ -57,6 +57,8 @@ module.exports = {
     }],
     "destructuring-newline/object-property-newline": ['warn'],
     'import/no-relative-parent-imports': ['warn'],
+    'import/no-cycle': ['error'],
+    'import/no-self-import': ['error'],
     'react/display-name': ['off'],
     'react/react-in-jsx-scope': ['off'],
     'react/jsx-max-props-per-line': ['warn', { maximum: 1 }],

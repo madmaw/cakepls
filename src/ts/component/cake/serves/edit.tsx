@@ -9,12 +9,12 @@ import {
 } from 'domain/model';
 import { useCallback } from 'react';
 
-export type CakeInputServesProps = { readonly serves: Serves };
+export type EditServesProps = { readonly serves: Serves };
 
-export function CakeInputServes({
+export function EditServes({
   serves,
   events
-}: EmittingComponentProps<CakeInputServesProps>) {
+}: EmittingComponentProps<EditServesProps>) {
   const { _ } = useLingui();
 
   const onChange = useCallback(function (_1: Event, value: number | readonly number[]) {

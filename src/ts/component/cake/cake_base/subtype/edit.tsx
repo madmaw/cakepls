@@ -1,20 +1,21 @@
 import type { EmittingComponentProps } from 'base/component/emitting';
-import { ButterCakeBaseName } from 'component/cake/cake_base/names';
 import { SelectEnum } from 'component/select';
 import type { ButterCakeBaseType } from 'domain/model';
 import { ButterCakeBaseSubtypes } from 'domain/values';
 
-export type SelectCakeBaseSubtypeProps<T extends number> = {
+import { ButterCakeBaseSubtypeName } from './names';
+
+export type EditCakeBaseSubtypeProps<T extends number> = {
   readonly value: T,
 };
 
-export function SelectButterCakeBaseSubtype({
+export function EditButterCakeBaseSubtype({
   value,
   events,
-}: EmittingComponentProps<SelectCakeBaseSubtypeProps<ButterCakeBaseType>>) {
+}: EmittingComponentProps<EditCakeBaseSubtypeProps<ButterCakeBaseType>>) {
   return (
     <SelectEnum
-      ValueComponent={ButterCakeBaseName}
+      ValueComponent={ButterCakeBaseSubtypeName}
       events={events}
       options={Object.values(ButterCakeBaseSubtypes)}
       value={value}

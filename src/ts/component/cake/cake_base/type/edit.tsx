@@ -1,20 +1,21 @@
 import type { EmittingComponentProps } from 'base/component/emitting';
-import { CakeBaseName } from 'component/cake/cake_base/names';
 import { SelectEnum } from 'component/select';
 import type { CakeBaseType } from 'domain/model';
 import { CakeBaseTypes } from 'domain/values';
 
-export type SelectCakeBaseTypeProps = {
+import { CakeBaseTypeName } from './names';
+
+export type EditCakeBaseTypeProps = {
   readonly value: CakeBaseType,
 };
 
-export function SelectCakeBaseType({
+export function EditCakeBaseType({
   value,
   events,
-}: EmittingComponentProps<SelectCakeBaseTypeProps>) {
+}: EmittingComponentProps<EditCakeBaseTypeProps>) {
   return (
     <SelectEnum
-      ValueComponent={CakeBaseName}
+      ValueComponent={CakeBaseTypeName}
       events={events}
       options={Object.values(CakeBaseTypes)}
       value={value}

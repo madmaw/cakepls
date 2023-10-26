@@ -1,19 +1,20 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import type { EmittingComponentProps } from 'base/component/emitting';
 import { usePartialComponent } from 'base/component/partial';
 import { Display } from 'base/display';
-import { CakeInputCakeBase } from 'component/cake/input/cake_base';
+import { EditCakeBaseInCake } from 'component/cake/edit_cake_base';
+import { EditIcingTypeInCake } from 'component/cake/edit_icing_type';
+import { EditServesInCake } from 'component/cake/edit_serves';
 import type { CakeInputSection } from 'component/cake/input/component';
 import { StatefulCakeInput } from 'component/cake/input/component';
-import { CakeInputIcing } from 'component/cake/input/icing';
-import { CakeInputServes } from 'component/cake/input/serves';
-import type { CakeInputProps } from 'component/cake/input/types';
-import { CakePreview as CakePreviewImpl } from 'component/cake/preview/component';
+import { CakePreview } from 'component/cake/preview/component';
 import { MasterDetail } from 'component/master_detail/component';
 import type { Cake } from 'domain/model';
 import type { Key } from 'react';
-import { useMemo } from 'react';
+import {
+  memo,
+  useMemo
+} from 'react';
 import type { Observer } from 'rxjs';
 
 export type CakeBuilderProps = {
@@ -22,6 +23,8 @@ export type CakeBuilderProps = {
   readonly events: Observer<{ readonly cake: Cake }>,
 };
 
+const MemoizedMasterDetail = memo(MasterDetail);
+
 export function CakeBuilder({
   cake,
   display,
@@ -29,24 +32,24 @@ export function CakeBuilder({
 }: CakeBuilderProps) {
   const { _ } = useLingui();
 
-  const ServesComponent = usePartialComponent<EmittingComponentProps<CakeInputProps>>(
-    CakeInputServes,
+  const ServesComponent = usePartialComponent(
+    EditServesInCake,
     {
       cake,
       events,
     },
   );
 
-  const IcingComponent = usePartialComponent<EmittingComponentProps<CakeInputProps>>(
-    CakeInputIcing,
+  const IcingComponent = usePartialComponent(
+    EditIcingTypeInCake,
     {
       cake,
       events
     },
   );
 
-  const CakeBaseComponent = usePartialComponent<EmittingComponentProps<CakeInputProps>>(
-    CakeInputCakeBase,
+  const CakeBaseComponent = usePartialComponent(
+    EditCakeBaseInCake,
     {
       cake,
       events,
@@ -78,10 +81,24 @@ export function CakeBuilder({
     };
   }, [_, IcingComponent]);
 
+  const Master = usePartialComponent(
+    StatefulCakeInput,
+    {
+      sections: [sectionServes, sectionCakeBase, sectionIcing],
+    },
+  );
+
+  const Detail = usePartialComponent(
+    CakePreview,
+    {
+      cake,
+    },
+  );
+
   return (
-    <MasterDetail
-      master={<StatefulCakeInput sections={[sectionServes, sectionCakeBase, sectionIcing]}/>}
-      detail={<CakePreviewImpl cake={cake}/>}
+    <MemoizedMasterDetail
+      Master={Master}
+      Detail={Detail}
       direction={display === Display.Comfortable ? 'row' : 'column'}
     />
   );

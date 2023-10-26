@@ -3,7 +3,7 @@ import { useLingui } from '@lingui/react';
 import { UnreachableError } from 'base/errors';
 import { IcingType } from 'domain/model';
 
-export function useIcingName(icingType: IcingType): string {
+export function useIcingTypeName(icingType: IcingType): string {
   const { _ } = useLingui();
   switch (icingType) {
     case IcingType.None:
@@ -29,8 +29,8 @@ export function useIcingName(icingType: IcingType): string {
   }
 }
 
-export function IcingName({ value }: {
+export function IcingTypeName({ value }: {
   readonly value: IcingType
 }) {
-  return useIcingName(value);
+  return useIcingTypeName(value);
 }

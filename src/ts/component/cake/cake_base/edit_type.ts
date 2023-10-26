@@ -14,11 +14,11 @@ import {
 } from 'domain/model';
 import type { Observer } from 'rxjs';
 
-import type { CakeInputCakeBaseProps } from './component';
+import type { EditCakeBaseProps } from './edit';
 import {
-  SelectCakeBaseType,
-  type SelectCakeBaseTypeProps
-} from './type/component';
+  EditCakeBaseType,
+  type EditCakeBaseTypeProps
+} from './type/edit';
 
 function defaultCakeBase(type: CakeBaseType): CakeBase {
   switch (type) {
@@ -57,15 +57,15 @@ function defaultCakeBase(type: CakeBaseType): CakeBase {
   }
 }
 
-class CakeInputSelectCakeBaseTypeAdaptor extends AbstractSynchronousComponentAdaptor<
-  SelectCakeBaseTypeProps,
-  CakeInputCakeBaseProps
+class EditCakeBaseTypeInCakeBaseAdaptor extends AbstractSynchronousComponentAdaptor<
+  EditCakeBaseTypeProps,
+  EditCakeBaseProps
 > {
 
   /**
    * @inheritdoc
    */
-  override transformSourceEvent({ value }: SelectCakeBaseTypeProps, targetProps: CakeInputCakeBaseProps): CakeInputCakeBaseProps {
+  override transformSourceEvent({ value }: EditCakeBaseTypeProps, targetProps: EditCakeBaseProps): EditCakeBaseProps {
     const {
       base: {
         type,
@@ -87,16 +87,16 @@ class CakeInputSelectCakeBaseTypeAdaptor extends AbstractSynchronousComponentAda
     base: {
       type: value,
     }
-  }: CakeInputCakeBaseProps): SelectCakeBaseTypeProps {
+  }: EditCakeBaseProps): EditCakeBaseTypeProps {
     return {
       value,
     };
   }
 }
 
-export const CakeInputSelectCakeBaseType = createAdaptorComponent<SelectCakeBaseTypeProps, CakeInputCakeBaseProps>(
-  SelectCakeBaseType,
-  function (targetEvents: Observer<CakeInputCakeBaseProps>) {
-    return new CakeInputSelectCakeBaseTypeAdaptor(targetEvents);
+export const EditCakeBaseTypeInCakeBase = createAdaptorComponent<EditCakeBaseTypeProps, EditCakeBaseProps>(
+  EditCakeBaseType,
+  function (targetEvents: Observer<EditCakeBaseProps>) {
+    return new EditCakeBaseTypeInCakeBaseAdaptor(targetEvents);
   },
 );

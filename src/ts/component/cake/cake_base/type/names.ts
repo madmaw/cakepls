@@ -1,12 +1,9 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { UnreachableError } from 'base/errors';
-import {
-  ButterCakeBaseType,
-  CakeBaseType
-} from 'domain/model';
+import { CakeBaseType } from 'domain/model';
 
-export function useCakeBaseName(type: CakeBaseType) {
+export function useCakeBaseTypeName(type: CakeBaseType) {
   const { _ } = useLingui();
   switch (type) {
     case CakeBaseType.Butter:
@@ -28,28 +25,8 @@ export function useCakeBaseName(type: CakeBaseType) {
   }
 }
 
-export function CakeBaseName({ value }: {
+export function CakeBaseTypeName({ value }: {
   readonly value: CakeBaseType
 }) {
-  return useCakeBaseName(value);
-}
-
-export function useButterCakeBaseName(type: ButterCakeBaseType) {
-  const { _ } = useLingui();
-  switch (type) {
-    case ButterCakeBaseType.Chiffon:
-      return _(msg`Chiffon`);
-    case ButterCakeBaseType.Pound:
-      return _(msg`Pound`);
-    case ButterCakeBaseType.Yellow:
-      return _(msg`Yellow`);
-    default:
-      throw new UnreachableError(type);
-  }
-}
-
-export function ButterCakeBaseName({ value }: {
-  readonly value: ButterCakeBaseType
-}) {
-  return useButterCakeBaseName(value);
+  return useCakeBaseTypeName(value);
 }

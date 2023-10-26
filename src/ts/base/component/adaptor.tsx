@@ -18,7 +18,7 @@ import { safeMemo } from './memoized_component';
 
 /**
  * Interface describing an adaptor between two components. The adaptor is responsible for
- * marshalling props passed to the source component from the target component, and unmarshalling
+ * marshalling props passed to the source component from the target component, and un-marshalling
  * events emitted by the source component to the target component.
  */
 export type ComponentAdaptor<SourceProps, TargetProps, SourceEvents> = {
@@ -117,7 +117,7 @@ export class PassThroughComponentAdaptor<SourceProps, SourceEvents>
 /**
  * This function creates an adaptor from the Source to the described Target component. You can then render the
  * Source component using the Target Props and receive the Target events. It is particularly useful when
- * you want to homogenise multiple components into a single interface.
+ * you want to homogenize multiple components into a single interface.
  * @param Source the component to adapt from
  * @param adaptorFactory creates a ComponentAdaptor for a given stream of Target events
  * @returns a component that meets the Target interface

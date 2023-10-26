@@ -6,7 +6,7 @@ import {
   lightPalette
 } from './colors';
 
-export const gridBaselinepace = 8;
+export const gridBaseline = 8;
 
 export function getDesignTokens(mode: PaletteMode) {
   return createTheme({
