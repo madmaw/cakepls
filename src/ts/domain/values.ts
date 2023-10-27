@@ -1,7 +1,7 @@
 import {
   ButterCakeBaseType,
   CakeBaseType,
-  IcingType
+  IcingType,
 } from './model';
 
 export const IcingTypes: Record<IcingType, IcingType> = {

@@ -35,7 +35,7 @@ export function EditCake({
     EditIcingTypeInCake,
     {
       cake,
-      events
+      events,
     },
   );
 

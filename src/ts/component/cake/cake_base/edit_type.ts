@@ -1,6 +1,6 @@
 import {
   AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent
+  createAdaptorComponent,
 } from 'base/component/adaptor';
 import { UnreachableError } from 'base/errors';
 import type { CakeBase } from 'domain/model';
@@ -10,14 +10,14 @@ import {
   CarrotCakeBaseType,
   ChocolateCakeBaseType,
   SpongeCakeBaseType,
-  WhiteCakeBaseType
+  WhiteCakeBaseType,
 } from 'domain/model';
 import type { Observer } from 'rxjs';
 
 import type { EditCakeBaseProps } from './edit';
 import {
   EditCakeBaseType,
-  type EditCakeBaseTypeProps
+  type EditCakeBaseTypeProps,
 } from './type/edit';
 
 function defaultCakeBase(type: CakeBaseType): CakeBase {
@@ -86,7 +86,7 @@ class EditCakeBaseTypeInCakeBaseAdaptor extends AbstractSynchronousComponentAdap
   override extractSourceProps({
     base: {
       type: value,
-    }
+    },
   }: EditCakeBaseProps): EditCakeBaseTypeProps {
     return {
       value,

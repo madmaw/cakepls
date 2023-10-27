@@ -28,10 +28,10 @@ export function MasterDetail({
   return (
     <Container direction={direction}>
       <MasterContainer>
-        <Master/>
+        <Master />
       </MasterContainer>
       <DetailContainer>
-        <Detail/>
+        <Detail />
       </DetailContainer>
     </Container>
   );

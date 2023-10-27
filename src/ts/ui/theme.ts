@@ -3,7 +3,7 @@ import { createTheme } from '@mui/material';
 
 import {
   darkPalette,
-  lightPalette
+  lightPalette,
 } from './colors';
 
 export const gridBaseline = 8;

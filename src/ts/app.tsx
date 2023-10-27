@@ -1,6 +1,6 @@
 import {
   useMediaQuery,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import { createStatefulComponent } from 'base/component/stateful';
 import { Display } from 'base/display';
@@ -8,7 +8,7 @@ import type { Cake } from 'domain/model';
 import {
   CakeBaseType,
   ChocolateCakeBaseType,
-  IcingType
+  IcingType,
 } from 'domain/model';
 import { CakeBuilder as CakeBuilderImpl } from 'page/builder/component';
 import { useMemo } from 'react';

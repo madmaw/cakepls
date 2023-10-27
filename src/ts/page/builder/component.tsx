@@ -1,3 +1,4 @@
+import type { EmittingComponentProps } from 'base/component/emitting';
 import { usePartialComponent } from 'base/component/partial';
 import { Display } from 'base/display';
 import { EditCake } from 'component/cake/edit';
@@ -5,13 +6,17 @@ import { ViewCake } from 'component/cake/view';
 import { MasterDetail } from 'component/master_detail/component';
 import type { Cake } from 'domain/model';
 import { memo } from 'react';
-import type { Observer } from 'rxjs';
 
-export type CakeBuilderProps = {
+export type CakeBuilderEvents = {
   readonly cake: Cake,
-  readonly display: Display,
-  readonly events: Observer<{ readonly cake: Cake }>,
 };
+
+export type CakeBuilderProps = EmittingComponentProps<
+  {
+    readonly display: Display,
+  } & CakeBuilderEvents,
+  CakeBuilderEvents
+>;
 
 const MemoizedMasterDetail = memo(MasterDetail);
 
@@ -20,13 +25,12 @@ export function CakeBuilder({
   display,
   events,
 }: CakeBuilderProps) {
-
   const Master = usePartialComponent(
     EditCake,
     {
       cake,
       events,
-    }
+    },
   );
 
   const Detail = usePartialComponent(

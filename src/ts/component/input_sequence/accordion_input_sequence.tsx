@@ -3,20 +3,20 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Typography
+  Typography,
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import { createStatefulComponent } from 'base/component/stateful';
 import {
   Fragment,
   type Key,
-  useCallback
+  useCallback,
 } from 'react';
 import type { Observer } from 'rxjs';
 
 import type {
   InputSequenceProps,
-  InputSequenceStep
+  InputSequenceStep,
 } from './types';
 
 export type AccordionInputSequenceEvents<T> = {
@@ -39,7 +39,7 @@ export function AccordionInputSequence<T extends Key = Key>({
 }: EmittingComponentProps<AccordionInputSequenceProps<T>, AccordionInputSequenceEvents<T>>) {
   return (
     <Fragment>
-      {steps.map(step => (
+      {steps.map((step) => (
         <AccordionInputSequenceStep
           key={step.key}
           step={step}
@@ -70,7 +70,7 @@ function AccordionInputSequenceStep<T extends Key = Key>({
 }: {
   readonly step: InputSequenceStep<T>,
   readonly expanded: boolean,
-  readonly events: Observer<AccordionInputSequenceEvents<T>>
+  readonly events: Observer<AccordionInputSequenceEvents<T>>,
 }) {
   const onChange = useCallback(function () {
     events.next({
@@ -85,10 +85,12 @@ function AccordionInputSequenceStep<T extends Key = Key>({
       onChange={onChange}
     >
       <AccordionSummary>
-        <Typography>{ title }</Typography>
+        <Typography>
+          {title}
+        </Typography>
       </AccordionSummary>
       <StretchedAccordionDetails>
-        <Component/>
+        <Component />
       </StretchedAccordionDetails>
     </Accordion>
   );

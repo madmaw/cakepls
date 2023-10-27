@@ -1,7 +1,7 @@
 import type { PaletteOptions } from '@mui/material';
 import {
   green,
-  red
+  red,
 } from '@mui/material/colors';
 
 type ModalPaletteOptions = Omit<PaletteOptions, 'mode'>;

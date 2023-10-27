@@ -1,13 +1,13 @@
 import {
   AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent
+  createAdaptorComponent,
 } from 'base/component/adaptor';
 import type { Observer } from 'rxjs';
 
 import type { EditCakeProps } from './edit';
 import {
   EditIcingType,
-  type EditIcingTypeProps
+  type EditIcingTypeProps,
 } from './icing/type/edit';
 
 class EditIcingTypeInCakeAdaptor extends AbstractSynchronousComponentAdaptor<

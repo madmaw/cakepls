@@ -1,12 +1,12 @@
 import {
   AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent
+  createAdaptorComponent,
 } from 'base/component/adaptor';
 import type { Observer } from 'rxjs';
 
 import {
   EditCakeBase,
-  type EditCakeBaseProps
+  type EditCakeBaseProps,
 } from './cake_base/edit';
 import type { EditCakeProps } from './edit';
 

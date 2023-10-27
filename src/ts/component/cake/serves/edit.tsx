@@ -12,7 +12,7 @@ import { useCallback } from 'react';
 export type EditServesProps = { readonly serves: Serves };
 
 export function EditServes({
-  serves,
+  serves, 
   events
 }: EmittingComponentProps<EditServesProps>) {
   const { _ } = useLingui();
