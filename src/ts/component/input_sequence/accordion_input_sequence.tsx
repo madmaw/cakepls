@@ -7,49 +7,43 @@ import {
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import { createStatefulComponent } from 'base/component/stateful';
-import type {
-  ComponentType,
-  Key
-} from 'react';
 import {
   Fragment,
+  type Key,
   useCallback
 } from 'react';
 import type { Observer } from 'rxjs';
 
-export type CakeInputEvents<T> = {
+import type {
+  InputSequenceProps,
+  InputSequenceStep
+} from './types';
+
+export type AccordionInputSequenceEvents<T> = {
   readonly expanded: T | null,
 };
 
-export type CakeInputSection<T> = {
-  readonly key: T,
-  readonly title: string | JSX.Element,
-  readonly Component: ComponentType,
-};
+type AccordionInputSequenceProps<T> = InputSequenceProps<T> & AccordionInputSequenceEvents<T>;
 
-export type CakeInputProps<T> = {
-  readonly sections: readonly CakeInputSection<T>[],
-} & CakeInputEvents<T>;
-
-export const StatefulCakeInput = createStatefulComponent<CakeInputEvents<Key>, {
-  readonly sections: readonly CakeInputSection<Key>[],
+export const StatefulAccordionInputSequence = createStatefulComponent<AccordionInputSequenceEvents<Key>, {
+  readonly steps: readonly InputSequenceStep<Key>[],
   readonly events?: never,
-}>(CakeInput, {
+}>(AccordionInputSequence, {
   expanded: null,
 });
 
-export function CakeInput<T extends Key = Key>({
-  sections,
+export function AccordionInputSequence<T extends Key = Key>({
+  steps,
   expanded,
   events,
-}: EmittingComponentProps<CakeInputProps<T>, CakeInputEvents<T>>) {
+}: EmittingComponentProps<AccordionInputSequenceProps<T>, AccordionInputSequenceEvents<T>>) {
   return (
     <Fragment>
-      {sections.map(section => (
-        <CakeInputSectionComponent
-          key={section.key}
-          section={section}
-          expanded={expanded === section.key}
+      {steps.map(step => (
+        <AccordionInputSequenceStep
+          key={step.key}
+          step={step}
+          expanded={expanded === step.key}
           events={events}
         />
       ))}
@@ -63,10 +57,10 @@ const StretchedAccordionDetails = styled(AccordionDetails)`
   align-items: stretch;
 `;
 
-function CakeInputSectionComponent<T extends Key = Key>({
+function AccordionInputSequenceStep<T extends Key = Key>({
   // linter doesn't support nested destructuring
   // eslint-disable-next-line destructuring-newline/object-property-newline
-  section: {
+  step: {
     Component,
     key,
     title,
@@ -74,9 +68,9 @@ function CakeInputSectionComponent<T extends Key = Key>({
   expanded,
   events,
 }: {
-  readonly section: CakeInputSection<T>,
+  readonly step: InputSequenceStep<T>,
   readonly expanded: boolean,
-  readonly events: Observer<CakeInputEvents<T>>
+  readonly events: Observer<AccordionInputSequenceEvents<T>>
 }) {
   const onChange = useCallback(function () {
     events.next({

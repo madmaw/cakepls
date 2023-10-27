@@ -4,6 +4,7 @@ import {
   useState
 } from 'react';
 import {
+  distinctUntilChanged,
   type Observable,
   shareReplay,
   Subject
@@ -21,8 +22,12 @@ export function useObservable<T>(t: T) {
     return new Subject<T>();
   });
   const observable = useMemo(function () {
-    // TODO does sharing cause memory leaks?
-    return subject.pipe(shareReplay(1));
+    return subject.pipe(
+      // TODO this is probably redundant with memoised components
+      distinctUntilChanged(),
+      // TODO does sharing cause memory leaks?
+      shareReplay(1)
+    );
   }, [subject]);
   useEffect(function () {
     subject.next(t);
@@ -56,7 +61,6 @@ export type ObservableComponentProps<Props, K extends keyof Props> = Omit<Props,
 };
 
 export type ObservableComponent<Props, K extends keyof Props> = ComponentType<ObservableComponentProps<Props, K>>;
-
 
 export function unwrapObservableComponent<Props, K extends keyof Props>(
     Component: ObservableComponent<Props, K>,

@@ -1,10 +1,10 @@
 import type { Cake } from 'domain/model';
 
-export type CakePreviewProps = {
+export type ViewCakeProps = {
   readonly cake: Cake,
 };
 
-export function CakePreview({ cake }: CakePreviewProps) {
+export function ViewCake({ cake }: ViewCakeProps) {
   return (
     <div>Preview {cake.base.type}</div>
   );
