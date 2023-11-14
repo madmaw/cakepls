@@ -1,20 +1,21 @@
 import type { ComponentType } from 'react';
 import {
   useEffect,
-  useState
+  useState,
 } from 'react';
 import { Subject } from 'rxjs';
 
 import { useConstantExpression } from './constant';
 import type {
   EmittingComponentProps,
-  EventlessComponentProps
+  EventlessComponentProps,
 } from './emitting';
 import { safeMemo } from './memoized_component';
 
 /**
- * Creates a component stores the incoming events from the supplied Stateless component as the
- * current state and supplies that state via props to the Stateless component on change
+ * Creates a component that stores the incoming events from the supplied Stateless component as the
+ * current state and supplies that state via props to the Stateless component on change, thus making it
+ * stateful
  * @param Stateless the component to receive events from and render to
  * @param initialState the initial props to supply to the Stateless component
  * @returns a stateful component that renders the Stateless component with the current state
@@ -29,7 +30,7 @@ export function createStatefulComponent<
         EventlessComponentProps<ComponentProps>
       >
     >,
-    initialState: Omit<ComponentProps, 'events'>,
+    initialState: EventlessComponentProps<ComponentProps>,
 ) {
   // memoise the stateless component so we don't render unnecessarily
   const MemoisedStateless = safeMemo(Stateless);
@@ -39,7 +40,7 @@ export function createStatefulComponent<
     const [state, setState] = useState<EventlessComponentProps<ComponentProps>>(initialState);
     // create a Subject to store the incoming events
     const subject = useConstantExpression(function () {
-      return new Subject<ComponentProps>();
+      return new Subject<EventlessComponentProps<ComponentProps>>();
     });
     // watch for events coming from the stateless component and set those
     // events as the current state

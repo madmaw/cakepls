@@ -1,19 +1,19 @@
 import {
   AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent
+  createAdaptorComponent,
 } from 'base/component/adaptor';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import { UnreachableError } from 'base/errors';
 import type {
   ButterCakeBaseType,
-  CakeBase
+  CakeBase,
 } from 'domain/model';
 import { CakeBaseType } from 'domain/model';
 import type { Observer } from 'rxjs';
 
 import {
   EditButterCakeBaseSubtype,
-  type EditCakeBaseSubtypeProps
+  type EditCakeBaseSubtypeProps,
 } from './subtype/edit';
 
 type EditCakeBaseSubtypeInCakeBaseProps<T extends CakeBaseType, S extends number> = {
@@ -76,6 +76,7 @@ export function EditCakeBaseSubtypeInCakeBase(props: EmittingComponentProps<{
     case CakeBaseType.RedVelvet:
     case CakeBaseType.Sponge:
     case CakeBaseType.White:
+      // TODO: implement
       return null;
     default:
       throw new UnreachableError(type);

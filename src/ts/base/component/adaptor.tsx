@@ -1,6 +1,6 @@
 import {
   useEffect,
-  useMemo
+  useMemo,
 } from 'react';
 import type { Observer } from 'rxjs';
 import {
@@ -12,7 +12,7 @@ import { useConstantExpression } from './constant';
 import type {
   EmittingComponent,
   EmittingComponentProps,
-  EventlessComponentProps
+  EventlessComponentProps,
 } from './emitting';
 import { safeMemo } from './memoized_component';
 
@@ -145,7 +145,7 @@ export function createAdaptorComponent<
   return function ({
     events,
     ...targetProps
-  }: EmittingComponentProps<TargetProps, TargetEvents> ) {
+  }: EmittingComponentProps<TargetProps, TargetEvents>) {
     // Create a transformer for the events coming out of the Source component
     const adaptor = useMemo(function () {
       return adaptorFactory(events);

@@ -6,6 +6,6 @@ export type ViewCakeProps = {
 
 export function ViewCake({ cake }: ViewCakeProps) {
   return (
-    <div>Preview {cake.base.type}</div>
+    <div>Preview {JSON.stringify(cake, undefined, 2)}</div>
   );
 }
