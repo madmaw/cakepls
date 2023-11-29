@@ -1,20 +1,26 @@
+import type {
+  ReactiveComponent,
+  ReactiveComponentProps,
+} from 'base/component/reactive';
 import {
-  AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent,
-} from 'base/component/adaptor';
-import type { EmittingComponentProps } from 'base/component/emitting';
+  adaptReactiveComponent,
+  useReactiveProps,
+} from 'base/component/reactive';
 import { UnreachableError } from 'base/errors';
 import type {
-  ButterCakeBaseType,
+  ButterCakeBase,
   CakeBase,
 } from 'domain/model';
 import { CakeBaseType } from 'domain/model';
-import type { Observer } from 'rxjs';
-
+import { useMemo } from 'react';
+import type { Observable } from 'rxjs';
 import {
-  EditButterCakeBaseSubtype,
-  type EditCakeBaseSubtypeProps,
-} from './subtype/edit';
+  filter,
+  map,
+} from 'rxjs';
+
+import type { EditCakeBaseSubtypeProps } from './subtype/edit';
+import { EditButterCakeBaseSubtype } from './subtype/edit';
 
 type EditCakeBaseSubtypeInCakeBaseProps<T extends CakeBaseType, S extends number> = {
   readonly base: {
@@ -23,53 +29,61 @@ type EditCakeBaseSubtypeInCakeBaseProps<T extends CakeBaseType, S extends number
   }
 };
 
-class EditCakeBaseSubtypeInCakeBaseAdaptor<T extends CakeBaseType, S extends number> extends AbstractSynchronousComponentAdaptor<
-  EditCakeBaseSubtypeProps<S>,
-  EditCakeBaseSubtypeInCakeBaseProps<T, S>
-> {
-  constructor(
-    targetEvents: Observer<EditCakeBaseSubtypeInCakeBaseProps<T, S>>,
-    private readonly type: T,
-  ) {
-    super(targetEvents);
-  }
-
-  override transformSourceEvent(
-    { value }: EditCakeBaseSubtypeProps<S>,
-  ): EditCakeBaseSubtypeInCakeBaseProps<T, S> {
-    return {
-      base: {
-        type: this.type,
-        subtype: value,
-      },
-    };
-  }
-
-  override extractSourceProps(
-    { base: { subtype } }: EditCakeBaseSubtypeInCakeBaseProps<T, S>,
-  ): EditCakeBaseSubtypeProps<S> {
-    return {
-      value: subtype,
-    };
-  }
+function createEditCakeBaseSubtypeInCakeBaseComponent<T extends CakeBaseType, S extends number>(
+    Component: ReactiveComponent<EditCakeBaseSubtypeProps<S>>,
+    type: T,
+) {
+  return adaptReactiveComponent<EditCakeBaseSubtypeInCakeBaseProps<T, S>, EditCakeBaseSubtypeProps<S>> (
+    Component,
+    map(function ({ base: { subtype } }: EditCakeBaseSubtypeInCakeBaseProps<T, S>) {
+      return {
+        value: subtype,
+      };
+    }),
+    map(function ([{ value }]: readonly [EditCakeBaseSubtypeProps<S>, EditCakeBaseSubtypeInCakeBaseProps<T, S>]) {
+      return {
+        base: {
+          type,
+          subtype: value,
+        },
+      };
+    }),
+  );
 }
 
-const EditButterCakeBaseSubtypeInCakeBase = createAdaptorComponent(
+export const EditButterCakeBaseSubtypeInCakeBase = createEditCakeBaseSubtypeInCakeBaseComponent(
   EditButterCakeBaseSubtype,
-  function (targetEvents: Observer<EditCakeBaseSubtypeInCakeBaseProps<CakeBaseType.Butter, ButterCakeBaseType>>) {
-    return new EditCakeBaseSubtypeInCakeBaseAdaptor(targetEvents, CakeBaseType.Butter);
-  },
+  CakeBaseType.Butter,
 );
 
-export function EditCakeBaseSubtypeInCakeBase(props: EmittingComponentProps<{
+export function EditCakeBaseSubtypeInCakeBase({
+  props,
+  events,
+}: ReactiveComponentProps<{
   readonly base: CakeBase,
 }>) {
-  const { base: { type } } = props;
-  switch (type) {
+  // TODO this pattern feels suboptimal
+  const baseType = useReactiveProps(props)?.base.type;
+  const filteredProps = useMemo(function() {
+    return props.pipe(filter(function ({ base: { type } }) {
+      return type === baseType;
+    }));
+  }, [baseType, props]);
+
+  switch (baseType) {
+    case undefined:
+      return null;
     case CakeBaseType.Butter:
+    {
       return (
-        <EditButterCakeBaseSubtypeInCakeBase {...props}/>
+        <EditButterCakeBaseSubtypeInCakeBase
+          // TODO remove cast somehow
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          props={filteredProps as Observable<{ readonly base: ButterCakeBase }>}
+          events={events}
+        />
       );
+    }
     case CakeBaseType.Carrot:
     case CakeBaseType.Chocolate:
     case CakeBaseType.Coffee:
@@ -79,6 +93,6 @@ export function EditCakeBaseSubtypeInCakeBase(props: EmittingComponentProps<{
       // TODO: implement
       return null;
     default:
-      throw new UnreachableError(type);
+      throw new UnreachableError(baseType);
   }
 }

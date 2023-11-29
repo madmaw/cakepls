@@ -42,6 +42,10 @@ export const enum SpongeCakeBaseType {
   Genoise,
 }
 
+export type ButterCakeBase = {
+  readonly type: CakeBaseType.Butter,
+  readonly subtype: ButterCakeBaseType,
+};
 export type CakeBase = {
   readonly type: Exclude<
     CakeBaseType,
@@ -51,10 +55,7 @@ export type CakeBase = {
     | CakeBaseType.Sponge
     | CakeBaseType.White
   >,
-} | {
-  readonly type: CakeBaseType.Butter,
-  readonly subtype: ButterCakeBaseType,
-} | {
+} | ButterCakeBase | {
   readonly type: CakeBaseType.Carrot,
   readonly subtype: CarrotCakeBaseType,
 } | {

@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import type { EmittingComponentProps } from 'base/component/emitting';
+import type { ReactiveComponentProps } from 'base/component/reactive';
 import { type CakeBase } from 'domain/model';
 
 import { EditCakeBaseSubtypeInCakeBase } from './edit_subtype';
@@ -9,7 +9,7 @@ export type EditCakeBaseProps = {
   readonly base: CakeBase,
 };
 
-export function EditCakeBase(props: EmittingComponentProps<EditCakeBaseProps>) {
+export function EditCakeBase(props: ReactiveComponentProps<EditCakeBaseProps>) {
   return (
     <Stack
       direction="column"

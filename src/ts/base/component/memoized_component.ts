@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
 import {
   memo,
-  useMemo
+  useMemo,
 } from 'react';
 
 /**

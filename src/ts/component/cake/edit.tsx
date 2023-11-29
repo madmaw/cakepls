@@ -1,12 +1,17 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
-import type { EmittingComponentProps } from 'base/component/emitting';
 import { usePartialComponent } from 'base/component/partial';
-import { StatefulAccordionInputSequence } from 'component/input_sequence/accordion_input_sequence';
+import type { ReactiveComponentProps } from 'base/component/reactive';
+import { createStatefulComponent } from 'base/component/stateful';
+import type { AccordionInputSequenceEvents } from 'component/input_sequence/accordion_input_sequence';
+import { AccordionInputSequence } from 'component/input_sequence/accordion_input_sequence';
 import type { InputSequenceStep } from 'component/input_sequence/types';
 import type { Cake } from 'domain/model';
 import type { Key } from 'react';
-import { useMemo } from 'react';
+import {
+  useEffect,
+  useMemo,
+} from 'react';
 
 import { EditCakeBaseInCake } from './edit_cake_base';
 import { EditIcingTypeInCake } from './edit_icing_type';
@@ -16,36 +21,35 @@ export type EditCakeProps = {
   readonly cake: Cake,
 };
 
-export function EditCake({
-  cake,
-  events,
-}: EmittingComponentProps<EditCakeProps>) {
+export const StatefulAccordionInputSequence = createStatefulComponent<AccordionInputSequenceEvents<Key>, {
+  readonly steps: readonly InputSequenceStep<Key>[],
+}>(AccordionInputSequence, { expanded: null });
+
+export function EditCake(props: ReactiveComponentProps<EditCakeProps>) {
 
   const { _ } = useLingui();
 
   const ServesComponent = usePartialComponent(
     EditServesInCake,
-    {
-      cake,
-      events,
-    },
+    props,
   );
 
   const IcingComponent = usePartialComponent(
     EditIcingTypeInCake,
-    {
-      cake,
-      events,
-    },
+    props,
   );
 
   const CakeBaseComponent = usePartialComponent(
     EditCakeBaseInCake,
-    {
-      cake,
-      events,
-    }
+    props,
   );
+
+  useEffect(function () {
+    const subscription = props.props.subscribe(function (v) {
+      console.log(JSON.stringify(v));
+    });
+    return subscription.unsubscribe.bind(subscription);
+  }, [props]);
 
   // create the sections
   const sectionServes = useMemo<InputSequenceStep<Key>>(function () {

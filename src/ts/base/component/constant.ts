@@ -17,7 +17,7 @@ type ConstantValue<T> = {
  * be called once
  * @returns the first supplied value
  */
-export function useConstantExpression<T>(expression: () => T) {
+export function useRefExpression<T>(expression: () => T) {
   const ref = useRef<ConstantValue<T>>();
   if (ref.current == null) {
     const value = expression();

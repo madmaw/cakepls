@@ -72,6 +72,12 @@ module.exports = {
     '@typescript-eslint/consistent-type-assertions': ['warn', {
       'assertionStyle': 'never',
     }],
+    '@typescript-eslint/ban-types': ['warn', {
+      'types': {
+        '{}': false,
+      },
+      'extendDefaults': true,
+    }],
     '@typescript-eslint/prefer-readonly-parameter-types': ['warn', {
       'allow': [
         // DOM lib
@@ -98,6 +104,7 @@ module.exports = {
           'name': [
             'Observer',
             'Observable',
+            'Subject',
           ],
         },
         // Material UI
@@ -130,6 +137,9 @@ module.exports = {
     'import/resolver': {
       //'typescript': true,
       'node': true,
-    }
+    },
+    react: {
+      version: 'detect',
+    },
   },
 };

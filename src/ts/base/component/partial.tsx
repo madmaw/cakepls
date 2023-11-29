@@ -5,7 +5,7 @@ import { useConstant } from './constant';
 import { useMemoisedComponent as useMemoizedComponent } from './memoized_component';
 import {
   useObservable,
-  useObservableValue
+  useObservableValue,
 } from './observable';
 
 /**
@@ -15,13 +15,10 @@ import {
  * @param curriedProps the partially applied props
  * @returns a partially applied component that exposes the remaining props
  */
-// I'm not sure what we're supposed to substitute for {} below as the suggestions
-// are either more broad or prevent compilation
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function usePartialComponent<CurriedProps, ExposedProps = {}>(
     Component: ComponentType<CurriedProps & ExposedProps>,
     curriedProps: CurriedProps,
-): ComponentType<ExposedProps & JSX.IntrinsicAttributes> {
+): ComponentType<RemainingComponentProps<ExposedProps>> {
 
   const MemoizedComponent = useMemoizedComponent(Component);
 
@@ -34,6 +31,8 @@ export function usePartialComponent<CurriedProps, ExposedProps = {}>(
   // Create a component that is partially applied with the exposed props and monitors
   // the `propsStream` for the remaining, curried props
   // TODO forwardRef
+  // TODO maybe readonly parameter types aren't so important?
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   return useCallback(function (exposedProps: RemainingComponentProps<ExposedProps>) {
     // get the latest curried props (will redraw on change)
     // this callback is a component, so hooks are fine here, eslint is just too dumb to
@@ -52,4 +51,4 @@ export function usePartialComponent<CurriedProps, ExposedProps = {}>(
   }, [MemoizedComponent, curriedPropsStream, defaultCurriedProps]);
 }
 
-type RemainingComponentProps<ExposedProps> = ExposedProps & Readonly<JSX.IntrinsicAttributes>;
+type RemainingComponentProps<ExposedProps> = ExposedProps & JSX.IntrinsicAttributes;

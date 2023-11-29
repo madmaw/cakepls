@@ -2,18 +2,19 @@ import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { Slider } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
+import { toReactiveComponent } from 'base/component/reactive';
 import type { Serves } from 'domain/model';
 import {
   MaxServes,
-  MinServes
+  MinServes,
 } from 'domain/model';
 import { useCallback } from 'react';
 
 export type EditServesProps = { readonly serves: Serves };
 
-export function EditServes({
-  serves, 
-  events
+function InternalEditServes({
+  serves,
+  events,
 }: EmittingComponentProps<EditServesProps>) {
   const { _ } = useLingui();
 
@@ -33,3 +34,5 @@ export function EditServes({
     />
   );
 }
+
+export const EditServes = toReactiveComponent(InternalEditServes);

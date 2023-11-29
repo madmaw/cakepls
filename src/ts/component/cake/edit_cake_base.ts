@@ -1,8 +1,5 @@
-import {
-  AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent,
-} from 'base/component/adaptor';
-import type { Observer } from 'rxjs';
+import { adaptReactiveComponent } from 'base/component/reactive';
+import { map } from 'rxjs';
 
 import {
   EditCakeBase,
@@ -10,40 +7,17 @@ import {
 } from './cake_base/edit';
 import type { EditCakeProps } from './edit';
 
-class EditCakeBaseInCakeAdaptor extends AbstractSynchronousComponentAdaptor<
-  EditCakeBaseProps,
-  EditCakeProps
->{
-  /**
-   * @inheritdoc
-   */
-  override transformSourceEvent(
-    { base }: EditCakeBaseProps,
-    { cake }: EditCakeProps,
-  ): EditCakeProps {
-    return {
+export const EditCakeBaseInCake = adaptReactiveComponent<EditCakeProps, EditCakeBaseProps>(
+  EditCakeBase,
+  map(function ({ cake: { base } }: EditCakeProps) {
+    return { base };
+  }),
+  map(function ([{ base }, { cake }]) {
+    return ({
       cake: {
         ...cake,
         base,
       },
-    };
-  }
-
-  /**
-   * @inheritdoc
-   */
-  override extractSourceProps(
-    { cake: { base } }: EditCakeProps,
-  ): EditCakeBaseProps {
-    return {
-      base,
-    };
-  }
-}
-
-export const EditCakeBaseInCake = createAdaptorComponent<EditCakeBaseProps, EditCakeProps>(
-  EditCakeBase,
-  function (targetEvents: Observer<EditCakeProps>) {
-    return new EditCakeBaseInCakeAdaptor(targetEvents);
-  },
+    });
+  }),
 );

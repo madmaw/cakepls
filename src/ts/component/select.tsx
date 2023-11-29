@@ -4,6 +4,7 @@ import {
   Select,
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
+import { toReactiveComponent } from 'base/component/reactive';
 import {
   type ComponentType,
   useCallback,
@@ -13,12 +14,31 @@ export type SelectEnumEvent<T> = {
   readonly value: T,
 };
 
-export type SelectEnumProps<T> = {
+type SelectEnumProps<T> = {
   readonly options: readonly T[],
   readonly ValueComponent: ComponentType<{ readonly value: T }>,
 } & SelectEnumEvent<T>;
 
-export function SelectEnum<T extends number>({
+export function createSelectEnum<T extends number>(
+    ValueComponent: ComponentType<{ readonly value: T }>,
+    options: readonly T[],
+) {
+  return toReactiveComponent(function ({
+    value,
+    events,
+  }: EmittingComponentProps<SelectEnumEvent<T>>) {
+    return (
+      <SelectEnum
+        value={value}
+        ValueComponent={ValueComponent}
+        options={options}
+        events={events}
+      />
+    );
+  });
+}
+
+function SelectEnum<T extends number>({
   ValueComponent,
   events,
   value,

@@ -1,10 +1,10 @@
 import Format from 'string-format';
 
 export function checkExists<T>(
-    t: T | null,
+    t: T | null | undefined,
     message: string,
     ...args: readonly string[]
-): T {
+): NonNullable<T> {
   if (t == null) {
     throw new Error(Format(message, ...args));
   }

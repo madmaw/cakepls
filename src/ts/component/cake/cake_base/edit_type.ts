@@ -1,7 +1,4 @@
-import {
-  AbstractSynchronousComponentAdaptor,
-  createAdaptorComponent,
-} from 'base/component/adaptor';
+import { adaptReactiveComponent } from 'base/component/reactive';
 import { UnreachableError } from 'base/errors';
 import type { CakeBase } from 'domain/model';
 import {
@@ -12,7 +9,7 @@ import {
   SpongeCakeBaseType,
   WhiteCakeBaseType,
 } from 'domain/model';
-import type { Observer } from 'rxjs';
+import { map } from 'rxjs';
 
 import type { EditCakeBaseProps } from './edit';
 import {
@@ -57,46 +54,17 @@ function defaultCakeBase(type: CakeBaseType): CakeBase {
   }
 }
 
-class EditCakeBaseTypeInCakeBaseAdaptor extends AbstractSynchronousComponentAdaptor<
-  EditCakeBaseTypeProps,
-  EditCakeBaseProps
-> {
-
-  /**
-   * @inheritdoc
-   */
-  override transformSourceEvent({ value }: EditCakeBaseTypeProps, targetProps: EditCakeBaseProps): EditCakeBaseProps {
-    const {
-      base: {
-        type,
-      },
-    } = targetProps;
-    if (value === type) {
-      return targetProps;
-    }
-    return {
-      ...targetProps,
-      base: defaultCakeBase(value),
-    };
-  }
-
-  /**
-   * @inheritdoc
-   */
-  override extractSourceProps({
-    base: {
-      type: value,
-    },
-  }: EditCakeBaseProps): EditCakeBaseTypeProps {
+export const EditCakeBaseTypeInCakeBase = adaptReactiveComponent<EditCakeBaseProps, EditCakeBaseTypeProps>(
+  EditCakeBaseType,
+  map(function({ base: { type: value } }: EditCakeBaseProps) {
     return {
       value,
     };
-  }
-}
-
-export const EditCakeBaseTypeInCakeBase = createAdaptorComponent<EditCakeBaseTypeProps, EditCakeBaseProps>(
-  EditCakeBaseType,
-  function (targetEvents: Observer<EditCakeBaseProps>) {
-    return new EditCakeBaseTypeInCakeBaseAdaptor(targetEvents);
-  },
+  }),
+  map(function ([{ value }, props]: readonly [EditCakeBaseTypeProps, EditCakeBaseProps]) {
+    return {
+      ...props,
+      base: defaultCakeBase(value),
+    };
+  }),
 );

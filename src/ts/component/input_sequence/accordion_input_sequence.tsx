@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
-import { createStatefulComponent } from 'base/component/stateful';
+import { toReactiveComponent } from 'base/component/reactive';
 import {
   Fragment,
   type Key,
@@ -25,14 +25,7 @@ export type AccordionInputSequenceEvents<T> = {
 
 type AccordionInputSequenceProps<T> = InputSequenceProps<T> & AccordionInputSequenceEvents<T>;
 
-export const StatefulAccordionInputSequence = createStatefulComponent<AccordionInputSequenceEvents<Key>, {
-  readonly steps: readonly InputSequenceStep<Key>[],
-  readonly events?: never,
-}>(AccordionInputSequence, {
-  expanded: null,
-});
-
-export function AccordionInputSequence<T extends Key = Key>({
+function InternalAccordionInputSequence<T extends Key = Key>({
   steps,
   expanded,
   events,
@@ -95,3 +88,5 @@ function AccordionInputSequenceStep<T extends Key = Key>({
     </Accordion>
   );
 }
+
+export const AccordionInputSequence = toReactiveComponent<AccordionInputSequenceProps<Key>, AccordionInputSequenceEvents<Key>>(InternalAccordionInputSequence);

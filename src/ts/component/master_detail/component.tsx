@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { toReactiveComponent } from 'base/component/reactive';
 import type { ComponentType } from 'react';
 
 type DirectionProps = {
@@ -17,14 +18,16 @@ const MasterContainer = styled.div({ flexGrow: 0 });
 
 const DetailContainer = styled.div({ flexGrow: 1 });
 
-export function MasterDetail({
+export type MasterDetailProps = {
+  readonly Master: ComponentType,
+  readonly Detail: ComponentType,
+} & DirectionProps;
+
+function InternalMasterDetail({
   Master,
   Detail,
   direction,
-}: {
-  readonly Master: ComponentType,
-  readonly Detail: ComponentType,
-} & DirectionProps) {
+}: MasterDetailProps) {
   return (
     <Container direction={direction}>
       <MasterContainer>
@@ -36,3 +39,5 @@ export function MasterDetail({
     </Container>
   );
 }
+
+export const MasterDetail = toReactiveComponent<MasterDetailProps, undefined>(InternalMasterDetail);

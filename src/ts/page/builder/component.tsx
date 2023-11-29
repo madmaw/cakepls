@@ -1,11 +1,22 @@
 import type { EmittingComponentProps } from 'base/component/emitting';
+import {
+  useObservable,
+  useObservableValue,
+} from 'base/component/observable';
 import { usePartialComponent } from 'base/component/partial';
+import { type ReactiveComponentProps } from 'base/component/reactive';
 import { Display } from 'base/display';
+import { shallowEquals } from 'base/objects';
 import { EditCake } from 'component/cake/edit';
 import { ViewCake } from 'component/cake/view';
+import type { MasterDetailProps } from 'component/master_detail/component';
 import { MasterDetail } from 'component/master_detail/component';
 import type { Cake } from 'domain/model';
-import { memo } from 'react';
+import { useMemo } from 'react';
+import {
+  distinctUntilChanged,
+  map,
+} from 'rxjs';
 
 export type CakeBuilderEvents = {
   readonly cake: Cake,
@@ -18,17 +29,26 @@ export type CakeBuilderProps = EmittingComponentProps<
   CakeBuilderEvents
 >;
 
-const MemoizedMasterDetail = memo(MasterDetail);
-
 export function CakeBuilder({
-  cake,
-  display,
+  props,
   events,
-}: CakeBuilderProps) {
+}: ReactiveComponentProps<CakeBuilderProps, CakeBuilderEvents>) {
+
+  const cakeOnlyProps = useMemo(function() {
+    return props.pipe(
+      map(function ({ cake }) {
+        return {
+          cake,
+        };
+      }),
+      distinctUntilChanged(shallowEquals),
+    );
+  }, [props]);
+
   const Master = usePartialComponent(
     EditCake,
     {
-      cake,
+      props: cakeOnlyProps,
       events,
     },
   );
@@ -36,15 +56,27 @@ export function CakeBuilder({
   const Detail = usePartialComponent(
     ViewCake,
     {
-      cake,
+      props: cakeOnlyProps,
+      events: undefined,
     },
   );
 
+  const propValue = useObservableValue(props, null);
+
+  const masterDetailObservable = useObservable<MasterDetailProps>({
+    Master,
+    Detail,
+    direction: propValue?.display === Display.Comfortable ? 'row' : 'column',
+  });
+
+  if (propValue?.display == null) {
+    return null;
+  }
+
   return (
-    <MemoizedMasterDetail
-      Master={Master}
-      Detail={Detail}
-      direction={display === Display.Comfortable ? 'row' : 'column'}
+    <MasterDetail
+      props={masterDetailObservable}
+      events={undefined}
     />
   );
 }
