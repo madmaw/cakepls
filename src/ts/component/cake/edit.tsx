@@ -1,7 +1,10 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { usePartialComponent } from 'base/component/partial';
-import type { ReactiveComponentProps } from 'base/component/reactive';
+import {
+  adaptReactiveComponent,
+  type ReactiveComponentProps,
+} from 'base/component/reactive';
 import { createStatefulComponent } from 'base/component/stateful';
 import type { AccordionInputSequenceEvents } from 'component/input_sequence/accordion_input_sequence';
 import { AccordionInputSequence } from 'component/input_sequence/accordion_input_sequence';
@@ -12,14 +15,67 @@ import {
   useEffect,
   useMemo,
 } from 'react';
+import { map } from 'rxjs';
 
-import { EditCakeBaseInCake } from './edit_cake_base';
-import { EditIcingTypeInCake } from './edit_icing_type';
-import { EditServesInCake } from './edit_serves';
+import type { EditCakeBaseProps } from './cake_base/edit';
+import { EditCakeBase } from './cake_base/edit';
+import type { EditIcingTypeProps } from './icing/type/edit';
+import { EditIcingType } from './icing/type/edit';
+import type { EditServesProps } from './serves/edit';
+import { EditServes } from './serves/edit';
 
 export type EditCakeProps = {
   readonly cake: Cake,
 };
+
+const EditCakeBaseInCake = adaptReactiveComponent<EditCakeProps, EditCakeBaseProps>(
+  EditCakeBase,
+  map(function ({ cake: { base } }: EditCakeProps) {
+    return { base };
+  }),
+  map(function ([{ base }, { cake }]) {
+    return ({
+      cake: {
+        ...cake,
+        base,
+      },
+    });
+  }),
+);
+
+const EditIcingTypeInCake = adaptReactiveComponent<EditCakeProps, EditIcingTypeProps>(
+  EditIcingType,
+  map(function ({ cake: { icing: { type: value } } }: EditCakeProps) {
+    return {
+      value,
+    };
+  }),
+  map(function ([{ value }, { cake }]) {
+    return ({
+      cake: {
+        ...cake,
+        icing: {
+          type: value,
+        },
+      },
+    });
+  }),
+);
+
+export const EditServesInCake = adaptReactiveComponent<EditCakeProps, EditServesProps>(
+  EditServes,
+  map(function ({ cake: { serves } }: EditCakeProps) {
+    return { serves };
+  }),
+  map(function ([{ serves }, { cake }]) {
+    return {
+      cake: {
+        ...cake,
+        serves,
+      },
+    };
+  }),
+);
 
 export const StatefulAccordionInputSequence = createStatefulComponent<AccordionInputSequenceEvents<Key>, {
   readonly steps: readonly InputSequenceStep<Key>[],

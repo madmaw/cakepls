@@ -19,4 +19,4 @@ export type EmittingComponentProps<Props extends Eventless, Events extends Event
 /**
  * Interface describing a component that emits events
  */
-export type EmittingComponent<Props extends Eventless, Events extends Eventless = Props> = ComponentType<EmittingComponentProps<Props, Events>>;
+export type EmittingComponent<Props extends Eventless, Events extends Eventless | undefined = Props> = ComponentType<EmittingComponentProps<Props, Events>>;

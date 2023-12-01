@@ -28,9 +28,9 @@ import { useObservable } from './observable';
 
 export type ReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined = Props> = {
   readonly props: Observable<Props>,
-} & ({
+} & {
   readonly events: Events extends undefined ? undefined : Observer<Events>,
-});
+};
 
 export type ReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props> = ComponentType<ReactiveComponentProps<Props, Events>>;
 
@@ -45,7 +45,7 @@ export function useReactiveProps<Props>(props: Observable<Props>): Props | null 
   return state;
 }
 
-export function toReactiveComponent<Props extends Eventless, Events extends Eventless>(
+export function toReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props>(
     Component: EmittingComponent<Props, Events>,
     initialProps?: Props,
 ): ReactiveComponent<Props, Events> {
@@ -79,7 +79,7 @@ export function toReactiveComponent<Props extends Eventless, Events extends Even
   };
 }
 
-export function fromReactiveComponent<Props extends Eventless, Events extends Eventless>(
+export function fromReactiveComponent<Props extends Eventless, Events extends Eventless | undefined>(
     Component: ReactiveComponent<Props, Events>,
 ): EmittingComponent<Props, Events> {
   return function ({

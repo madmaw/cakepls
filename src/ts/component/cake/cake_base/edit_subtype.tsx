@@ -51,7 +51,7 @@ function createEditCakeBaseSubtypeInCakeBaseComponent<T extends CakeBaseType, S 
   );
 }
 
-export const EditButterCakeBaseSubtypeInCakeBase = createEditCakeBaseSubtypeInCakeBaseComponent(
+const EditButterCakeBaseSubtypeInCakeBase = createEditCakeBaseSubtypeInCakeBaseComponent(
   EditButterCakeBaseSubtype,
   CakeBaseType.Butter,
 );

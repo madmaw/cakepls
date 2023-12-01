@@ -5,7 +5,7 @@ export type ViewCakeProps = {
   readonly cake: Cake,
 };
 
-export const ViewCake = toReactiveComponent<ViewCakeProps, undefined>(function ({ cake }: ViewCakeProps) {
+export const ViewCake = toReactiveComponent(function ({ cake }: ViewCakeProps) {
   return (
     <div>Preview {JSON.stringify(cake, undefined, 2)}</div>
   );

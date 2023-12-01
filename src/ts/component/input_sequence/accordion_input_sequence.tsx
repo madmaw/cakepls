@@ -89,4 +89,4 @@ function AccordionInputSequenceStep<T extends Key = Key>({
   );
 }
 
-export const AccordionInputSequence = toReactiveComponent<AccordionInputSequenceProps<Key>, AccordionInputSequenceEvents<Key>>(InternalAccordionInputSequence);
+export const AccordionInputSequence = toReactiveComponent(InternalAccordionInputSequence);
