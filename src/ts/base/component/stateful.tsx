@@ -7,6 +7,7 @@ import {
 } from 'rxjs';
 
 import { useRefExpression } from './constant';
+import type { Eventless } from './emitting';
 import { safeMemo } from './memoized_component';
 import { useObservable } from './observable';
 import type { ReactiveComponent } from './reactive';
@@ -20,7 +21,7 @@ import type { ReactiveComponent } from './reactive';
  * @returns a stateful component that renders the Stateless component with the current state
  */
 export function createStatefulComponent<
-  State extends {},
+  State extends Eventless,
   P = {},
 >(
     Stateless: ReactiveComponent<State & P, State>,

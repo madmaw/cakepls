@@ -22,17 +22,17 @@ import { useRefExpression } from './constant';
 import type {
   EmittingComponent,
   EmittingComponentProps,
-  EventlessComponentProps,
+  Eventless,
 } from './emitting';
 import { useObservable } from './observable';
 
-export type ReactiveComponentProps<Props, Events = EventlessComponentProps<Props>> = {
-  readonly props: Observable<EventlessComponentProps<Props>>,
+export type ReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined = Props> = {
+  readonly props: Observable<Props>,
 } & ({
   readonly events: Events extends undefined ? undefined : Observer<Events>,
 });
 
-export type ReactiveComponent<Props, Events = EventlessComponentProps<Props>> = ComponentType<ReactiveComponentProps<Props, Events>>;
+export type ReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props> = ComponentType<ReactiveComponentProps<Props, Events>>;
 
 export function useReactiveProps<Props>(props: Observable<Props>): Props | null {
   const [state, setState] = useState<Props | null>(null);
@@ -45,21 +45,21 @@ export function useReactiveProps<Props>(props: Observable<Props>): Props | null 
   return state;
 }
 
-export function toReactiveComponent<Props, Events>(
+export function toReactiveComponent<Props extends Eventless, Events extends Eventless>(
     Component: EmittingComponent<Props, Events>,
-    initialProps?: EventlessComponentProps<Props>,
+    initialProps?: Props,
 ): ReactiveComponent<Props, Events> {
   return function ({
     props,
     events,
   }: ReactiveComponentProps<Props, Events>) {
-    const [state, setState] = useState<EventlessComponentProps<Props> | undefined>(initialProps);
+    const [state, setState] = useState<Props | undefined>(initialProps);
 
     useEffect(function () {
       const subscription = props
           // disabled because subscribe should never change, only props
           // eslint-disable-next-line react/prop-types
-          .subscribe(function(state: EventlessComponentProps<Props>) {
+          .subscribe(function(state: Props) {
             setState(state);
           });
 
@@ -79,7 +79,7 @@ export function toReactiveComponent<Props, Events>(
   };
 }
 
-export function fromReactiveComponent<Props, Events>(
+export function fromReactiveComponent<Props extends Eventless, Events extends Eventless>(
     Component: ReactiveComponent<Props, Events>,
 ): EmittingComponent<Props, Events> {
   return function ({
@@ -87,10 +87,10 @@ export function fromReactiveComponent<Props, Events>(
     ...props
   }: EmittingComponentProps<Props, Events>) {
 
-    // Exclude<Props, 'events'> === Exclude<Exclude<Props, 'events'>, 'events'>
+    // Props extends Eventless === Omit<Props extends Eventless & { events: x }, 'events'>
     // TODO is there a way of defining the types that removes the need for this cast?
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const propsObservable = useObservable(props as EventlessComponentProps<Props>);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
+    const propsObservable = useObservable(props as any);
 
     return (
       <Component
@@ -101,13 +101,13 @@ export function fromReactiveComponent<Props, Events>(
   };
 }
 
-export function ReactiveComponentAdaptor<Props, Events>({
+export function ReactiveComponentAdaptor<Props extends Eventless, Events extends Eventless>({
   Target,
   events,
   ...props
 }: EmittingComponentProps<Props, Events> & { readonly Target: ReactiveComponent<Props, Events> }) {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const propsObservable = useObservable(props as Props);
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
+  const propsObservable = useObservable(props as any);
   return (
     <Target
       events={events}
@@ -117,22 +117,22 @@ export function ReactiveComponentAdaptor<Props, Events>({
 }
 
 export function adaptReactiveComponent<
-  SourceProps,
-  TargetProps,
-  SourceEvents = SourceProps,
-  TargetEvents = TargetProps
+  SourceProps extends Eventless,
+  TargetProps extends Eventless,
+  SourceEvents extends Eventless | undefined = SourceProps,
+  TargetEvents extends Defines<SourceEvents, Eventless> = Defines<SourceEvents, TargetProps>
   >(
     Target: ReactiveComponent<TargetProps, TargetEvents>,
-    propsOperator: OperatorFunction<EventlessComponentProps<SourceProps>, EventlessComponentProps<TargetProps>>,
-    eventsOperator: Defines<TargetEvents,  OperatorFunction<readonly [TargetEvents, EventlessComponentProps<SourceProps>], SourceEvents>>,
+    propsOperator: OperatorFunction<SourceProps, TargetProps>,
+    eventsOperator: Defines<TargetEvents,  OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>>,
 ) {
-  const targetEventsSubjectFactory = createDefinesFactory<TargetEvents, Subject<TargetEvents>, OperatorFunction<readonly [TargetEvents, EventlessComponentProps<SourceProps>], SourceEvents>>(function () {
+  const targetEventsSubjectFactory = createDefinesFactory<TargetEvents, Subject<TargetEvents>, OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>>(function () {
     return new Subject<TargetEvents>();
   });
 
-  const sourceEventsObservableFactory = createDefinesFactory<TargetEvents, Observable<SourceEvents>, Subject<TargetEvents>, Observable<EventlessComponentProps<SourceProps>>>(function (
+  const sourceEventsObservableFactory = createDefinesFactory<TargetEvents, Observable<SourceEvents>, Subject<TargetEvents>, Observable<SourceProps>>(function (
     targetEventsSubject: Subject<TargetEvents>,
-    sourceProps: Observable<EventlessComponentProps<SourceProps>>
+    sourceProps: Observable<SourceProps>
   ) {
     // events operator is DefinedBy TargetEvents too, can we unwrap somehow?
     return targetEventsSubject.pipe(
@@ -167,7 +167,9 @@ export function adaptReactiveComponent<
         return;
       }
       const subscription = sourceEventsObservable.subscribe(function (e) {
-        sourceEvents.next(e);
+        // This will always be defined is sourceEventsObservable is defined
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
+        sourceEvents.next(e as any);
       });
       return subscription.unsubscribe.bind(subscription);
     }, [sourceEventsObservable, sourceEvents]);
