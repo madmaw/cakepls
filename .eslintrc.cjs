@@ -22,7 +22,13 @@ module.exports = {
     'eqeqeq': ['warn', 'always', {
       'null': 'never',
     }],
-    'comma-dangle': ['warn', 'always-multiline'],
+    'comma-dangle': ['warn', {
+      arrays: 'always-multiline',
+      objects: 'always-multiline',
+      imports: 'always-multiline',
+      exports: 'always-multiline',
+      functions: 'always-multiline',
+    }],
     'func-style': ['warn', 'declaration', {
       'allowArrowFunctions': false,
     }],

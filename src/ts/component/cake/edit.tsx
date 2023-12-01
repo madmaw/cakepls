@@ -10,7 +10,6 @@ import type { AccordionInputSequenceEvents } from 'component/input_sequence/acco
 import { AccordionInputSequence } from 'component/input_sequence/accordion_input_sequence';
 import type { InputSequenceStep } from 'component/input_sequence/types';
 import type { Cake } from 'domain/model';
-import type { Key } from 'react';
 import {
   useEffect,
   useMemo,
@@ -23,6 +22,12 @@ import type { EditIcingTypeProps } from './icing/type/edit';
 import { EditIcingType } from './icing/type/edit';
 import type { EditServesProps } from './serves/edit';
 import { EditServes } from './serves/edit';
+
+const enum SectionId {
+  Serves = 'serves',
+  CakeBase = 'cake_base',
+  Icing = 'icing',
+}
 
 export type EditCakeProps = {
   readonly cake: Cake,
@@ -77,8 +82,8 @@ export const EditServesInCake = adaptReactiveComponent<EditCakeProps, EditServes
   }),
 );
 
-export const StatefulAccordionInputSequence = createStatefulComponent<AccordionInputSequenceEvents<Key>, {
-  readonly steps: readonly InputSequenceStep<Key>[],
+export const StatefulAccordionInputSequence = createStatefulComponent<AccordionInputSequenceEvents<SectionId>, {
+  readonly steps: readonly InputSequenceStep<SectionId>[],
 }>(AccordionInputSequence, { expanded: null });
 
 export function EditCake(props: ReactiveComponentProps<EditCakeProps>) {
@@ -108,31 +113,31 @@ export function EditCake(props: ReactiveComponentProps<EditCakeProps>) {
   }, [props]);
 
   // create the sections
-  const sectionServes = useMemo<InputSequenceStep<Key>>(function () {
+  const sectionServes = useMemo<InputSequenceStep<SectionId>>(function () {
     return {
-      key: 'serves',
+      key: SectionId.Serves,
       title: _(msg`Servings`),
       Component: ServesComponent,
     };
   }, [_, ServesComponent]);
 
-  const sectionCakeBase = useMemo<InputSequenceStep<Key>>(function () {
+  const sectionCakeBase = useMemo<InputSequenceStep<SectionId>>(function () {
     return {
-      key: 'cake_base',
+      key: SectionId.CakeBase,
       title: _(msg`Cake Base`),
       Component: CakeBaseComponent,
     };
   }, [_, CakeBaseComponent]);
 
-  const sectionIcing = useMemo<InputSequenceStep<Key>>(function () {
+  const sectionIcing = useMemo<InputSequenceStep<SectionId>>(function () {
     return {
-      key: 'icing',
+      key: SectionId.Icing,
       title: _(msg`Icing`),
       Component: IcingComponent,
     };
   }, [_, IcingComponent]);
 
-  const steps = useMemo<InputSequenceStep<Key>[]>(function () {
+  const steps = useMemo<InputSequenceStep<SectionId>[]>(function () {
     return [sectionServes, sectionCakeBase, sectionIcing];
   }, [sectionServes, sectionCakeBase, sectionIcing]);
 
