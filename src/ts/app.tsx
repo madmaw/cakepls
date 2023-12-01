@@ -21,8 +21,6 @@ export function App() {
       },
       {
         readonly display: Display,
-        // TODO I feel like this should be able to be omitted
-        readonly events?: never,
       }
     > (
       CakeBuilderImpl,
@@ -45,7 +43,7 @@ export function App() {
   const theme = useTheme();
   const comfortable = useMediaQuery(theme.breakpoints.up('md'));
   const display = useMemo(function () {
-    return  comfortable
+    return comfortable
       ? Display.Comfortable
       : Display.Compact;
   }, [comfortable]);

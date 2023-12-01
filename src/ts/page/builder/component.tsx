@@ -1,4 +1,3 @@
-import type { EmittingComponentProps } from 'base/component/emitting';
 import {
   useObservable,
   useObservableValue,
@@ -22,12 +21,10 @@ export type CakeBuilderEvents = {
   readonly cake: Cake,
 };
 
-export type CakeBuilderProps = EmittingComponentProps<
+export type CakeBuilderProps =
   {
     readonly display: Display,
-  } & CakeBuilderEvents,
-  CakeBuilderEvents
->;
+  } & CakeBuilderEvents;
 
 export function CakeBuilder({
   props,

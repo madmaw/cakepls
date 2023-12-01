@@ -121,18 +121,27 @@ export function adaptReactiveComponent<
   TargetProps extends Eventless,
   SourceEvents extends Eventless | undefined = SourceProps,
   TargetEvents extends Defines<SourceEvents, Eventless> = Defines<SourceEvents, TargetProps>
-  >(
+>(
     Target: ReactiveComponent<TargetProps, TargetEvents>,
     propsOperator: OperatorFunction<SourceProps, TargetProps>,
-    eventsOperator: Defines<TargetEvents,  OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>>,
+    eventsOperator: Defines<TargetEvents, OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>>,
 ) {
-  const targetEventsSubjectFactory = createDefinesFactory<TargetEvents, Subject<TargetEvents>, OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>>(function () {
+  const targetEventsSubjectFactory = createDefinesFactory<
+    TargetEvents,
+    Subject<TargetEvents>,
+    OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>
+  >(function () {
     return new Subject<TargetEvents>();
   });
 
-  const sourceEventsObservableFactory = createDefinesFactory<TargetEvents, Observable<SourceEvents>, Subject<TargetEvents>, Observable<SourceProps>>(function (
+  const sourceEventsObservableFactory = createDefinesFactory<
+    TargetEvents,
+    Observable<SourceEvents>,
+    Subject<TargetEvents>,
+    Observable<SourceProps>
+  >(function (
     targetEventsSubject: Subject<TargetEvents>,
-    sourceProps: Observable<SourceProps>
+    sourceProps: Observable<SourceProps>,
   ) {
     // events operator is DefinedBy TargetEvents too, can we unwrap somehow?
     return targetEventsSubject.pipe(
@@ -168,8 +177,8 @@ export function adaptReactiveComponent<
       }
       const subscription = sourceEventsObservable.subscribe(function (e) {
         // This will always be defined is sourceEventsObservable is defined
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
-        sourceEvents.next(e as any);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        sourceEvents.next(e!);
       });
       return subscription.unsubscribe.bind(subscription);
     }, [sourceEventsObservable, sourceEvents]);

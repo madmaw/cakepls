@@ -40,4 +40,4 @@ function InternalMasterDetail({
   );
 }
 
-export const MasterDetail = toReactiveComponent(InternalMasterDetail);
+export const MasterDetail = toReactiveComponent<MasterDetailProps, undefined>(InternalMasterDetail);

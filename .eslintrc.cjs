@@ -48,6 +48,7 @@ module.exports = {
         "semi": true
       }
     ],
+    'no-multi-spaces': ['warn'],
     'no-unused-vars': 'off', // or "@typescript-eslint/no-unused-vars": "off",
     '@typescript-eslint/no-unused-vars': 'off',
 		'unused-imports/no-unused-imports': "error",
