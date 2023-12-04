@@ -1,7 +1,7 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { UnreachableError } from 'base/errors';
-import { IcingType } from 'domain/model';
+import { IcingType } from 'examples/cakes/domain/model';
 
 export function useIcingTypeName(icingType: IcingType): string {
   const { _ } = useLingui();

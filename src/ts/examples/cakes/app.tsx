@@ -1,19 +1,42 @@
+import { i18n } from '@lingui/core';
+import { I18nProvider } from '@lingui/react';
 import {
+  CssBaseline,
+  ThemeProvider,
   useMediaQuery,
-  useTheme,
 } from '@mui/material';
+import { useRefExpression } from 'base/component/constant';
 import { createStatefulComponent } from 'base/component/stateful';
-import { Display } from 'base/display';
-import type { Cake } from 'domain/model';
+import type { Cake } from 'examples/cakes/domain/model';
 import {
   CakeBaseType,
   ChocolateCakeBaseType,
   IcingType,
-} from 'domain/model';
-import { CakeBuilder as CakeBuilderImpl } from 'page/builder/component';
-import { useMemo } from 'react';
+} from 'examples/cakes/domain/model';
+import {
+  CakeBuilder as CakeBuilderImpl,
+  Display,
+} from 'examples/cakes/page/builder/component';
+import {
+  Fragment,
+  useEffect,
+  useMemo,
+} from 'react';
+
+import { getDesignTokens } from './ui/theme';
 
 export function App() {
+
+  const theme = useRefExpression(function () {
+    return getDesignTokens('light');
+  });
+
+  // TODO
+  //i18n.load('en', messages);
+  useEffect(function () {
+    i18n.activate('en');
+  });
+
   const CakeBuilder = useMemo(function () {
     return createStatefulComponent<
       {
@@ -40,7 +63,6 @@ export function App() {
     );
   }, []);
 
-  const theme = useTheme();
   const comfortable = useMediaQuery(theme.breakpoints.up('md'));
   const display = useMemo(function () {
     return comfortable
@@ -48,5 +70,14 @@ export function App() {
       : Display.Compact;
   }, [comfortable]);
 
-  return <CakeBuilder display={display}/>;
+  return (
+    <Fragment>
+      <CssBaseline />
+      <ThemeProvider theme={theme}>
+        <I18nProvider i18n={i18n}>
+          <CakeBuilder display={display}/>
+        </I18nProvider>
+      </ThemeProvider>
+    </Fragment>
+  );
 }

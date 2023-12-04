@@ -3,11 +3,11 @@ import { useLingui } from '@lingui/react';
 import { Slider } from '@mui/material';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import { toReactiveComponent } from 'base/component/reactive';
-import type { Serves } from 'domain/model';
+import type { Serves } from 'examples/cakes/domain/model';
 import {
   MaxServes,
   MinServes,
-} from 'domain/model';
+} from 'examples/cakes/domain/model';
 import { useCallback } from 'react';
 
 export type EditServesProps = { readonly serves: Serves };

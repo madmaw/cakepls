@@ -1,7 +1,7 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { UnreachableError } from 'base/errors';
-import { CakeBaseType } from 'domain/model';
+import { CakeBaseType } from 'examples/cakes/domain/model';
 
 export function useCakeBaseTypeName(type: CakeBaseType) {
   const { _ } = useLingui();

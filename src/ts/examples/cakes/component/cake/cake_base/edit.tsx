@@ -6,7 +6,7 @@ import {
   useReactiveProps,
 } from 'base/component/reactive';
 import { UnreachableError } from 'base/errors';
-import type { ButterCakeBase } from 'domain/model';
+import type { ButterCakeBase } from 'examples/cakes/domain/model';
 import {
   ButterCakeBaseType,
   type CakeBase,
@@ -15,7 +15,7 @@ import {
   ChocolateCakeBaseType,
   SpongeCakeBaseType,
   WhiteCakeBaseType,
-} from 'domain/model';
+} from 'examples/cakes/domain/model';
 import { useMemo } from 'react';
 import type { Observable } from 'rxjs';
 import {

@@ -4,13 +4,12 @@ import {
 } from 'base/component/observable';
 import { usePartialComponent } from 'base/component/partial';
 import { type ReactiveComponentProps } from 'base/component/reactive';
-import { Display } from 'base/display';
 import { shallowEquals } from 'base/objects';
-import { EditCake } from 'component/cake/edit';
-import { ViewCake } from 'component/cake/view';
-import type { MasterDetailProps } from 'component/master_detail/component';
-import { MasterDetail } from 'component/master_detail/component';
-import type { Cake } from 'domain/model';
+import { EditCake } from 'examples/cakes/component/cake/edit';
+import { ViewCake } from 'examples/cakes/component/cake/view';
+import type { MasterDetailProps } from 'examples/cakes/component/master_detail/component';
+import { MasterDetail } from 'examples/cakes/component/master_detail/component';
+import type { Cake } from 'examples/cakes/domain/model';
 import { useMemo } from 'react';
 import {
   distinctUntilChanged,
@@ -20,6 +19,11 @@ import {
 export type CakeBuilderEvents = {
   readonly cake: Cake,
 };
+
+export const enum Display {
+  Compact,
+  Comfortable,
+}
 
 export type CakeBuilderProps =
   {

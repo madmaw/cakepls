@@ -1,6 +1,6 @@
-import { createSelectEnum } from 'component/select';
-import type { CakeBaseType } from 'domain/model';
-import { CakeBaseTypes } from 'domain/values';
+import { createSelectEnum } from 'examples/cakes/component/select';
+import type { CakeBaseType } from 'examples/cakes/domain/model';
+import { CakeBaseTypes } from 'examples/cakes/domain/values';
 
 import { CakeBaseTypeName } from './names';
 

@@ -6,10 +6,10 @@ import {
   type ReactiveComponentProps,
 } from 'base/component/reactive';
 import { createStatefulComponent } from 'base/component/stateful';
-import type { AccordionInputSequenceEvents } from 'component/input_sequence/accordion_input_sequence';
-import { AccordionInputSequence } from 'component/input_sequence/accordion_input_sequence';
-import type { InputSequenceStep } from 'component/input_sequence/types';
-import type { Cake } from 'domain/model';
+import type { AccordionInputSequenceEvents } from 'examples/cakes/component/input_sequence/accordion_input_sequence';
+import { AccordionInputSequence } from 'examples/cakes/component/input_sequence/accordion_input_sequence';
+import type { InputSequenceStep } from 'examples/cakes/component/input_sequence/types';
+import type { Cake } from 'examples/cakes/domain/model';
 import {
   useEffect,
   useMemo,

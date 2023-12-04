@@ -1,7 +1,7 @@
-import type { SelectEnumEvent } from 'component/select';
-import { createSelectEnum } from 'component/select';
-import type { ButterCakeBaseType } from 'domain/model';
-import { ButterCakeBaseSubtypes } from 'domain/values';
+import type { SelectEnumEvent } from 'examples/cakes/component/select';
+import { createSelectEnum } from 'examples/cakes/component/select';
+import type { ButterCakeBaseType } from 'examples/cakes/domain/model';
+import { ButterCakeBaseSubtypes } from 'examples/cakes/domain/values';
 
 import { ButterCakeBaseSubtypeName } from './names';
 

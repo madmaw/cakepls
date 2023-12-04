@@ -27,6 +27,12 @@ export function createDefinesFactory<A, B, C, D>(factory: (c: NonNullable<C>, d?
 
 export type Defines<A, B> = A extends undefined ? undefined : B;
 
+export function alwaysDefined<A extends {}, B>(b: B): Defines<A, B> {
+  // unfortunately Typescript doesn't seem to be able to infer that A is always defined
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
+  return b as any;
+}
+
 export function exists<T>(t: T | undefined | null): t is NonNullable<T> {
   return t != null;
 }

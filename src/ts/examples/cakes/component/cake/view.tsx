@@ -1,5 +1,5 @@
 import { toReactiveComponent } from 'base/component/reactive';
-import type { Cake } from 'domain/model';
+import type { Cake } from 'examples/cakes/domain/model';
 
 export type ViewCakeProps = {
   readonly cake: Cake,

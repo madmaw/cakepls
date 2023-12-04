@@ -1,7 +1,7 @@
 import { msg } from '@lingui/macro';
 import { useLingui } from '@lingui/react';
 import { UnreachableError } from 'base/errors';
-import { ButterCakeBaseType } from 'domain/model';
+import { ButterCakeBaseType } from 'examples/cakes/domain/model';
 
 export function useButterCakeBaseSubtypeName(type: ButterCakeBaseType) {
   const { _ } = useLingui();

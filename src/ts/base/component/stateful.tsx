@@ -1,9 +1,13 @@
+import { mergePairwise } from 'base/rxjs/merge_pairwise';
+import {
+  alwaysDefined,
+  type Defines,
+} from 'base/types';
 import { useMemo } from 'react';
+import type { Subject } from 'rxjs';
 import {
   BehaviorSubject,
   map,
-  merge,
-  withLatestFrom,
 } from 'rxjs';
 
 import { useRefExpression } from './constant';
@@ -33,38 +37,26 @@ export function createStatefulComponent<
   return function (p: P) {
     const ps = useObservable(p);
     // create a Subject to store the incoming events
-    const events = useRefExpression(function () {
-      return new BehaviorSubject<State>(initialState);
+    const events = useRefExpression(function (): Defines<State, Subject<State>> {
+      return alwaysDefined<State, Subject<State>>(new BehaviorSubject<State>(initialState));
     });
     // watch for events coming from the stateless component, combine those with the passed props
     // and expose as props
     const props = useMemo(function () {
-      return merge(
-        ps.pipe(
-          withLatestFrom(events),
-          map(function ([p, state]: readonly [P, State]) {
-            return {
-              ...state, ...p,
-            };
-          }),
-        ),
-        events.pipe(
-          withLatestFrom(ps),
-          map(function ([state, p]: readonly [State, P]) {
-            return {
-              ...state, ...p,
-            };
-          }),
-        ),
+      return mergePairwise(ps, events).pipe(
+        map(function ([p, event]: readonly [P, State]) {
+          return {
+            ...event,
+            ...p,
+          };
+        }),
       );
     }, [ps, events]);
     // render the current state
     return (
       <MemoisedStateless
         props={props}
-        // TODO remove the cast somehow
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-        events={events as any}
+        events={events}
       />
     );
   };
