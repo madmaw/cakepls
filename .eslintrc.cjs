@@ -85,45 +85,6 @@ module.exports = {
       },
       'extendDefaults': true,
     }],
-    '@typescript-eslint/prefer-readonly-parameter-types': ['warn', {
-      'allow': [
-        // DOM lib
-        { 'from': 'lib', 'name': ['Event'] },
-        // React
-        {
-          'from': 'package',
-          'package': 'react',
-          'name': [
-            'ComponentType',
-            'ComponentClass',
-            'FunctionComponent',
-            'Element',
-            'SyntheticEvent',
-            'Attributes',
-            'IntrinsicAttributes',
-            'ChangeEvent',
-          ],
-        },
-        // RxJS
-        {
-          'from': 'package',
-          'package': 'rxjs',
-          'name': [
-            'Observer',
-            'Observable',
-            'Subject',
-          ],
-        },
-        // Material UI
-        {
-          'from': 'package',
-          'package': '@mui/material',
-          'name': [
-            'SelectChangeEvent',
-          ],
-        },
-      ],
-    }],
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

@@ -31,8 +31,6 @@ export function usePartialComponent<CurriedProps, ExposedProps = {}>(
   // Create a component that is partially applied with the exposed props and monitors
   // the `propsStream` for the remaining, curried props
   // TODO forwardRef
-  // TODO maybe readonly parameter types aren't so important?
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   return useCallback(function (exposedProps: RemainingComponentProps<ExposedProps>) {
     // get the latest curried props (will redraw on change)
     // this callback is a component, so hooks are fine here, eslint is just too dumb to

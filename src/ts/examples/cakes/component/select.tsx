@@ -44,8 +44,6 @@ function SelectEnum<T extends number>({
   value,
   options,
 }: EmittingComponentProps<SelectEnumProps<T>, SelectEnumEvent<T>>) {
-  // select change event is not readonly and I can't work out the rules to make it readonly
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   const onChange = useCallback(function (e: SelectChangeEvent<T>) {
     // value can be a string or T, but we know it's T
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions

@@ -8,7 +8,7 @@ import type { Observer } from 'rxjs';
 export type Eventless = {
   // work around for weak type checking in Typescript
   // https://mariusschulz.com/blog/weak-type-detection-in-typescript#workarounds-for-weak-types
-  [prop: string]: unknown,
+  readonly [prop: string]: unknown,
   readonly events?: never,
 };
 
