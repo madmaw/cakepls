@@ -5,7 +5,7 @@ import {
   AccordionSummary,
   Typography,
 } from '@mui/material';
-import { useRefExpression } from 'base/component/constant';
+import { useConstantExpression } from 'base/component/constant';
 import type { EmittingComponentProps } from 'base/component/emitting';
 import type { ReactiveComponentProps } from 'base/component/reactive';
 import { toReactiveComponent } from 'base/component/reactive';
@@ -94,7 +94,7 @@ function AccordionInputSequenceStep<T extends Key = Key>({
 export function AccordionInputSequence<T extends Key = Key>(
     props: ReactiveComponentProps<AccordionInputSequenceProps<T>, AccordionInputSequenceEvents<T>>,
 ) {
-  const Impl = useRefExpression(function () {
+  const Impl = useConstantExpression(function () {
     return toReactiveComponent<AccordionInputSequenceProps<T>, AccordionInputSequenceEvents<T>>(
       InternalAccordionInputSequence,
     );

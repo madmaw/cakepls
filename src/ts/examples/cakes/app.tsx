@@ -5,7 +5,7 @@ import {
   ThemeProvider,
   useMediaQuery,
 } from '@mui/material';
-import { useRefExpression } from 'base/component/constant';
+import { useConstantExpression } from 'base/component/constant';
 import { createStatefulComponent } from 'base/component/stateful';
 import type { Cake } from 'examples/cakes/domain/model';
 import {
@@ -27,7 +27,7 @@ import { getDesignTokens } from './ui/theme';
 
 export function App() {
 
-  const theme = useRefExpression(function () {
+  const theme = useConstantExpression(function () {
     return getDesignTokens('light');
   });
 

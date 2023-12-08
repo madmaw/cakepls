@@ -9,7 +9,7 @@ import {
   type Observable,
 } from 'rxjs';
 
-import { useRefExpression } from './constant';
+import { useConstantExpression } from './constant';
 
 /**
  * Gets an observable that emits the given value whenever it is called
@@ -17,7 +17,7 @@ import { useRefExpression } from './constant';
  * @returns the observable that emits the given value
  */
 export function useObservable<T>(t: T) {
-  const subject = useRefExpression(function () {
+  const subject = useConstantExpression(function () {
     return new BehaviorSubject<T>(t);
   });
   const observable = useMemo(function () {

@@ -12,12 +12,12 @@ type ConstantValue<T> = {
 };
 
 /**
- * Always return the first supplied value regardless of later values
+ * Always return the first evaluated value regardless of later values
  * @param expression the expression that returns the value, will only
  * be called once
- * @returns the first supplied value
+ * @returns the first evaluated value
  */
-export function useRefExpression<T>(expression: () => T) {
+export function useConstantExpression<T>(expression: () => T) {
   const ref = useRef<ConstantValue<T>>();
   if (ref.current == null) {
     const value = expression();

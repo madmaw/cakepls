@@ -1,12 +1,21 @@
 import type { ComponentType } from 'react';
-import { useCallback } from 'react';
+import {
+  useCallback,
+  useMemo,
+} from 'react';
+import { map } from 'rxjs';
 
 import { useConstant } from './constant';
+import type { Eventless } from './emitting';
 import { useMemoisedComponent as useMemoizedComponent } from './memoized_component';
 import {
   useObservable,
   useObservableValue,
 } from './observable';
+import type {
+  ReactiveComponent,
+  ReactiveComponentProps,
+} from './reactive';
 
 /**
  * Creates a Component that is partially applied with the given props. The returned Component
@@ -47,6 +56,35 @@ export function usePartialComponent<CurriedProps, ExposedProps = {}>(
       />
     );
   }, [MemoizedComponent, curriedPropsStream, defaultCurriedProps]);
+}
+
+export function createPartialReactiveComponent<
+  CurriedProps extends Eventless,
+  ExposedProps extends Eventless = {},
+  Events extends Eventless | undefined = ExposedProps
+>(
+    Component: ReactiveComponent<CurriedProps & ExposedProps, Events>,
+    curriedProps: CurriedProps,
+) {
+  return function ({
+    props: exposedObservableProps,
+    events,
+  }: ReactiveComponentProps<ExposedProps, Events>) {
+    const props = useMemo(function () {
+      return exposedObservableProps.pipe(map(function (exposedProps) {
+        return {
+          ...curriedProps,
+          ...exposedProps,
+        };
+      }));
+    }, [exposedObservableProps]);
+    return (
+      <Component
+        props={props}
+        events={events}
+      />
+    );
+  };
 }
 
 type RemainingComponentProps<ExposedProps> = ExposedProps & JSX.IntrinsicAttributes;

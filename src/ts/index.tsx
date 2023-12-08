@@ -1,5 +1,5 @@
 import { checkExists } from 'base/preconditions';
-import { App } from 'examples/cakes/app';
+import { App } from 'examples/todos/app';
 import { createRoot } from 'react-dom/client';
 
 window.addEventListener('load', function () {

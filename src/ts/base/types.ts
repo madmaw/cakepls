@@ -25,7 +25,39 @@ export function createDefinesFactory<A, B, C, D>(factory: (c: NonNullable<C>, d?
   };
 }
 
+// doesn't cause errors, but seems to be ignored
+// export type Defines<A, B> = A extends undefined
+//   ? undefined
+//   : A extends Defines<infer C, infer D>
+//     ? C extends undefined
+//       ? undefined
+//       : D extends undefined
+//         ? undefined
+//         : B
+//     : B;
+// causes typescript errors
+// export type Defines<A, B> = A extends undefined
+//   ? undefined
+//   : A extends Defines<infer C, infer D>
+//     ? Defines<C | D, B>
+//     : B;
+
 export type Defines<A, B> = A extends undefined ? undefined : B;
+
+export type Defined<B> = B extends Defines<infer _, infer C> ? C : NonNullable<B>;
+
+export function dedupeDefines<A, B, C>(a: Defines<Defines<A, NonNullable<C>>, B>): Defines<A, B> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
+  return a as any;
+}
+
+export function maybeDefined<A extends {} | undefined, B>(a: A | Defines<A, unknown>, b: B): Defines<A, B> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return a != null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
+    ? b as any
+    : undefined;
+}
 
 export function alwaysDefined<A extends {}, B>(b: B): Defines<A, B> {
   // unfortunately Typescript doesn't seem to be able to infer that A is always defined

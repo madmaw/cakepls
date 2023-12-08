@@ -2,6 +2,7 @@ import { shallowEquals } from 'base/objects';
 import {
   createDefinesFactory,
   type Defines,
+  maybeDefined,
 } from 'base/types';
 import {
   type ComponentType,
@@ -18,7 +19,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 
-import { useRefExpression } from './constant';
+import { useConstantExpression } from './constant';
 import type {
   EmittingComponent,
   EmittingComponentProps,
@@ -26,11 +27,12 @@ import type {
 } from './emitting';
 import { useObservable } from './observable';
 
-export type ReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined = Props> = {
+type InternalReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined> = {
   readonly props: Observable<Props>,
-} & {
-  readonly events: Events extends undefined ? undefined : Observer<Events>,
+  readonly events: Defines<Events, Observer<Events>>,
 };
+
+export type ReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined = Props> = InternalReactiveComponentProps<Props, Events>
 
 export type ReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props> = ComponentType<ReactiveComponentProps<Props, Events>>;
 
@@ -45,6 +47,25 @@ export function useReactiveProps<Props>(props: Observable<Props>): Props | null 
   return state;
 }
 
+export function useObserverPipe<T, U extends {} | undefined>(
+    observer: Defines<U, Observer<T>>,
+    operator: OperatorFunction<U, T>,
+): Defines<U, Observer<U>> {
+  const subject = useConstantExpression(function () {
+    return new Subject<U>();
+  });
+  useEffect(function () {
+    if (observer == null) {
+      return;
+    }
+    const subscription = subject.pipe(
+      operator,
+    ).subscribe(observer);
+    return subscription.unsubscribe.bind(subscription);
+  }, [observer, subject, operator]);
+  return maybeDefined(observer, subject);
+}
+
 export function toReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props>(
     Component: EmittingComponent<Props, Events>,
     initialProps?: Props,
@@ -57,7 +78,7 @@ export function toReactiveComponent<Props extends Eventless, Events extends Even
 
     useEffect(function () {
       const subscription = props
-          // disabled because subscribe should never change, only props
+          // disabled because 'subscribe' should never change, only 'props'
           // eslint-disable-next-line react/prop-types
           .subscribe(function(state: Props) {
             setState(state);
@@ -156,7 +177,7 @@ export function adaptReactiveComponent<
     events: sourceEvents,
   }: ReactiveComponentProps<SourceProps, SourceEvents>) {
 
-    const targetEventsSubject = useRefExpression(function () {
+    const targetEventsSubject = useConstantExpression(function () {
       return targetEventsSubjectFactory(eventsOperator);
     });
 
