@@ -11,6 +11,9 @@ module.exports = {
   rules: {
     'semi': ['error', 'always'],
     'quotes': ['warn', 'single'],
+    'no-console': ['warn'],
+    'no-alert': ['warn'],
+    'no-debugger': ['warn'],
     'indent': ['warn', 2, {
       'FunctionDeclaration': {
         'body': 1,
@@ -68,6 +71,7 @@ module.exports = {
     'import/no-self-import': ['error'],
     'react/display-name': ['off'],
     'react/react-in-jsx-scope': ['off'],
+    'react/prop-types': ['off'],
     'react/jsx-max-props-per-line': ['warn', { maximum: 1 }],
     'react/jsx-indent-props': ['warn', 2],
     'react/jsx-first-prop-new-line': ['warn', 'multiline-multiprop'],
