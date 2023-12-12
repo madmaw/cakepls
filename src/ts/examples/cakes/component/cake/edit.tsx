@@ -10,10 +10,7 @@ import type { AccordionInputSequenceEvents } from 'examples/cakes/component/inpu
 import { AccordionInputSequence } from 'examples/cakes/component/input_sequence/accordion_input_sequence';
 import type { InputSequenceStep } from 'examples/cakes/component/input_sequence/types';
 import type { Cake } from 'examples/cakes/domain/model';
-import {
-  useEffect,
-  useMemo,
-} from 'react';
+import { useMemo } from 'react';
 import { map } from 'rxjs';
 
 import type { EditCakeBaseProps } from './cake_base/edit';
@@ -33,9 +30,9 @@ export type EditCakeProps = {
   readonly cake: Cake,
 };
 
-const EditCakeBaseInCake = adaptReactiveComponent<EditCakeProps, EditCakeBaseProps>(
+const EditCakeBaseInCake = adaptReactiveComponent<EditCakeProps, EditCakeBaseProps, EditCakeProps, EditCakeBaseProps>(
   EditCakeBase,
-  map(function ({ cake: { base } }: EditCakeProps) {
+  map(function ([{ cake: { base } }]) {
     return { base };
   }),
   map(function ([{ base }, { cake }]) {
@@ -48,9 +45,9 @@ const EditCakeBaseInCake = adaptReactiveComponent<EditCakeProps, EditCakeBasePro
   }),
 );
 
-const EditIcingTypeInCake = adaptReactiveComponent<EditCakeProps, EditIcingTypeProps>(
+const EditIcingTypeInCake = adaptReactiveComponent<EditCakeProps, EditIcingTypeProps, EditCakeProps, EditIcingTypeProps>(
   EditIcingType,
-  map(function ({ cake: { icing: { type: value } } }: EditCakeProps) {
+  map(function ([{ cake: { icing: { type: value } } }]) {
     return {
       value,
     };
@@ -67,9 +64,9 @@ const EditIcingTypeInCake = adaptReactiveComponent<EditCakeProps, EditIcingTypeP
   }),
 );
 
-export const EditServesInCake = adaptReactiveComponent<EditCakeProps, EditServesProps>(
+export const EditServesInCake = adaptReactiveComponent<EditCakeProps, EditServesProps, EditCakeProps, EditServesProps>(
   EditServes,
-  map(function ({ cake: { serves } }: EditCakeProps) {
+  map(function ([{ cake: { serves } }]) {
     return { serves };
   }),
   map(function ([{ serves }, { cake }]) {
@@ -104,13 +101,6 @@ export function EditCake(props: ReactiveComponentProps<EditCakeProps>) {
     EditCakeBaseInCake,
     props,
   );
-
-  useEffect(function () {
-    const subscription = props.props.subscribe(function (v) {
-      console.log(JSON.stringify(v));
-    });
-    return subscription.unsubscribe.bind(subscription);
-  }, [props]);
 
   // create the sections
   const sectionServes = useMemo<InputSequenceStep<SectionId>>(function () {

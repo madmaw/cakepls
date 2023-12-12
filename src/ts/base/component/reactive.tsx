@@ -1,8 +1,7 @@
-import { shallowEquals } from 'base/objects';
 import {
-  createDefinesFactory,
   type Defines,
   maybeDefined,
+  maybeDefinedExpression,
 } from 'base/types';
 import {
   type ComponentType,
@@ -12,7 +11,9 @@ import {
 } from 'react';
 import type { OperatorFunction } from 'rxjs';
 import {
-  distinctUntilChanged,
+  BehaviorSubject,
+  combineLatest,
+  map,
   type Observable,
   type Observer,
   Subject,
@@ -29,7 +30,7 @@ import { useObservable } from './observable';
 
 type InternalReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined> = {
   readonly props: Observable<Props>,
-  readonly events: Defines<Events, Observer<Events>>,
+  readonly events: Defines<Events, Observer<NonNullable<Events>>>,
 };
 
 export type ReactiveComponentProps<Props extends Eventless, Events extends Eventless | undefined = Props> = InternalReactiveComponentProps<Props, Events>
@@ -137,77 +138,138 @@ export function ReactiveComponentAdaptor<Props extends Eventless, Events extends
   );
 }
 
+// target doesn't fire events (readonly component)
 export function adaptReactiveComponent<
   SourceProps extends Eventless,
   TargetProps extends Eventless,
-  SourceEvents extends Eventless | undefined = SourceProps,
-  TargetEvents extends Defines<SourceEvents, Eventless> = Defines<SourceEvents, TargetProps>
+>(
+  Target: ReactiveComponent<TargetProps, undefined>,
+  propsOperator: OperatorFunction<readonly [SourceProps, undefined], TargetProps>,
+  eventsOperator?: undefined,
+  initialState?: undefined,
+): ReactiveComponent<SourceProps, undefined>;
+// no state, optional source events
+export function adaptReactiveComponent<
+  SourceProps extends Eventless,
+  TargetProps extends Eventless,
+  SourceEvents extends Eventless | undefined,
+  TargetEvents extends Eventless,
+>(
+  Target: ReactiveComponent<TargetProps, TargetEvents>,
+  propsOperator: OperatorFunction<readonly [SourceProps, undefined], TargetProps>,
+  eventsOperator: Defines<SourceEvents, OperatorFunction<readonly [TargetEvents, SourceProps, undefined], SourceEvents>>,
+  initialState?: undefined,
+): ReactiveComponent<SourceProps, SourceEvents>;
+// state, but no source events
+export function adaptReactiveComponent<
+  SourceProps extends Eventless,
+  TargetProps extends Eventless,
+  SourceEvents extends undefined,
+  TargetEvents extends Eventless,
+  States extends Eventless,
+>(
+  Target: ReactiveComponent<TargetProps, TargetEvents>,
+  propsOperator: OperatorFunction<readonly [SourceProps, States], TargetProps>,
+  eventsOperator: OperatorFunction<readonly [TargetEvents, SourceProps, States], States>,
+  initialState: States,
+): ReactiveComponent<SourceProps, SourceEvents>;
+// state and source events
+export function adaptReactiveComponent<
+  SourceProps extends Eventless,
+  TargetProps extends Eventless,
+  SourceEvents extends Eventless,
+  TargetEvents extends Eventless,
+  States extends Eventless,
+>(
+  Target: ReactiveComponent<TargetProps, TargetEvents>,
+  propsOperator: OperatorFunction<readonly [SourceProps, States], TargetProps>,
+  eventsOperator: OperatorFunction<readonly [TargetEvents, SourceProps, States], readonly [SourceEvents, States]>,
+  initialState: States,
+): ReactiveComponent<SourceProps, SourceEvents>;
+// implementation
+export function adaptReactiveComponent<
+  SourceProps extends Eventless,
+  TargetProps extends Eventless,
+  SourceEvents extends Eventless | undefined,
+  TargetEvents extends Eventless | undefined,
+  States extends Eventless | undefined,
 >(
     Target: ReactiveComponent<TargetProps, TargetEvents>,
-    propsOperator: OperatorFunction<SourceProps, TargetProps>,
-    eventsOperator: Defines<TargetEvents, OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>>,
-) {
-  const targetEventsSubjectFactory = createDefinesFactory<
-    TargetEvents,
-    Subject<TargetEvents>,
-    OperatorFunction<readonly [TargetEvents, SourceProps], SourceEvents>
-  >(function () {
-    return new Subject<TargetEvents>();
-  });
-
-  const sourceEventsObservableFactory = createDefinesFactory<
-    TargetEvents,
-    Observable<SourceEvents>,
-    Subject<TargetEvents>,
-    Observable<SourceProps>
-  >(function (
-    targetEventsSubject: Subject<TargetEvents>,
-    sourceProps: Observable<SourceProps>,
-  ) {
-    // events operator is DefinedBy TargetEvents too, can we unwrap somehow?
-    return targetEventsSubject.pipe(
-      withLatestFrom(sourceProps),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      eventsOperator!,
-    );
-  });
+    propsOperator: OperatorFunction<readonly [SourceProps, States], TargetProps>,
+    eventsOperator: Defines<TargetEvents, OperatorFunction<readonly [TargetEvents, SourceProps, States], readonly [SourceEvents, States] | SourceEvents | States>>,
+    initialState: States,
+): ReactiveComponent<SourceProps, SourceEvents> {
 
   return function ({
     props: sourceProps,
     events: sourceEvents,
   }: ReactiveComponentProps<SourceProps, SourceEvents>) {
-
-    const targetEventsSubject = useConstantExpression(function () {
-      return targetEventsSubjectFactory(eventsOperator);
+    const targetEvents = useConstantExpression(function (): Defines<TargetEvents, Subject<TargetEvents>> {
+      return maybeDefined(eventsOperator, new Subject<TargetEvents>());
     });
 
-    const targetPropsObservable = useMemo(function () {
-      return sourceProps.pipe(
-        propsOperator,
-        distinctUntilChanged(shallowEquals),
-      );
-    }, [sourceProps]);
+    const states = useConstantExpression(function () {
+      return new BehaviorSubject(initialState);
+    });
 
-    const sourceEventsObservable = useMemo(function () {
-      return sourceEventsObservableFactory(targetEventsSubject, sourceProps);
-    }, [targetEventsSubject, sourceProps]);
+    const targetProps = useMemo(function () {
+      return combineLatest([sourceProps, states]).pipe(
+        propsOperator,
+      );
+    }, [sourceProps, states]);
+    const targetEventsAndSourcePropsAndStates = useMemo(function (): Defines<TargetEvents, Observable<[TargetEvents, SourceProps, States]>> {
+      return maybeDefinedExpression(
+        targetEvents,
+        function (targetEvents) {
+          return targetEvents.pipe(
+            withLatestFrom(combineLatest([sourceProps, states])),
+            // convert from [a, [b, c]] to [a, b, c]
+            map(function ([a, b]) {
+              return [a, ...b] as const;
+            }),
+          );
+        },
+      );
+    }, [targetEvents, sourceProps, states]);
 
     useEffect(function () {
-      if (sourceEvents == null || sourceEventsObservable == null) {
-        return;
+      if (eventsOperator && targetEventsAndSourcePropsAndStates) {
+        const subscription = targetEventsAndSourcePropsAndStates
+            .pipe(eventsOperator)
+            .subscribe(function (sourceEventAndOrState) {
+              let sourceEvent: SourceEvents | undefined;
+              let state: States | undefined;
+              if (Array.isArray(sourceEventAndOrState)) {
+              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                [sourceEvent, state] = sourceEventAndOrState as (readonly [SourceEvents, States]);
+              } else {
+                if (initialState != null) {
+                  // must be a new state
+                  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                  state = sourceEventAndOrState as States;
+                } else {
+                  // must be an event
+                  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                  sourceEvent = sourceEventAndOrState as SourceEvents;
+                }
+              }
+              if (sourceEvents != null && sourceEvent != null) {
+                sourceEvents.next(sourceEvent);
+              }
+              if (state != null) {
+                states.next(state);
+              }
+            });
+        return subscription.unsubscribe.bind(subscription);
+
       }
-      const subscription = sourceEventsObservable.subscribe(function (e) {
-        // This will always be defined is sourceEventsObservable is defined
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        sourceEvents.next(e!);
-      });
-      return subscription.unsubscribe.bind(subscription);
-    }, [sourceEventsObservable, sourceEvents]);
+      return;
+    }, [targetEventsAndSourcePropsAndStates, sourceEvents, states]);
 
     return (
       <Target
-        props={targetPropsObservable}
-        events={targetEventsSubject}
+        events={targetEvents}
+        props={targetProps}
       />
     );
   };

@@ -42,10 +42,15 @@ export function createDefinesFactory<A, B, C, D>(factory: (c: NonNullable<C>, d?
 //     ? Defines<C | D, B>
 //     : B;
 
-export type Defines<A, B> = A extends undefined ? undefined : B;
+export type Defines<A, B> = A extends undefined
+  ? undefined
+  : B;
 
-export type Defined<B> = B extends Defines<infer _, infer C> ? C : NonNullable<B>;
+export type Defined<B> = B extends Defines<unknown, infer C> ? C : B;
+export type DefinedBy<B> = B extends Defines<infer A, unknown> ? A : NonNullable<B>;
 
+//export function dedupeDefines<A>(a: A): Defines<A, A>;
+export function dedupeDefines<A, B>(a: Defines<A, B>): Defines<A, B>;
 export function dedupeDefines<A, B, C>(a: Defines<Defines<A, NonNullable<C>>, B>): Defines<A, B> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
   return a as any;
@@ -56,6 +61,14 @@ export function maybeDefined<A extends {} | undefined, B>(a: A | Defines<A, unkn
   return a != null
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
     ? b as any
+    : undefined;
+}
+
+export function maybeDefinedExpression<R, A, B>(a: Defines<A, B>, f: (b: B) => R): Defines<A, R> {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/no-unsafe-return
+  return a != null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-argument
+    ? f(a as any) as any
     : undefined;
 }
 

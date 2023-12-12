@@ -19,7 +19,7 @@ export type EmittingComponentProps<
   Props extends Eventless,
   Events extends Eventless | undefined = Props
 > = Props & ({
-  readonly events: Defines<Events, Observer<Events>>,
+  readonly events: Defines<Events, Observer<NonNullable<Events>>>,
 });
 
 /**

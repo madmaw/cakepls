@@ -73,14 +73,19 @@ function defaultCakeBase(type: CakeBaseType): CakeBase {
   }
 }
 
-const EditCakeBaseTypeInCakeBase = adaptReactiveComponent<EditCakeBaseProps, EditCakeBaseTypeProps>(
+const EditCakeBaseTypeInCakeBase = adaptReactiveComponent<
+  EditCakeBaseProps,
+  EditCakeBaseTypeProps,
+  EditCakeBaseProps,
+  EditCakeBaseTypeProps
+>(
   EditCakeBaseType,
-  map(function ({ base: { type: value } }: EditCakeBaseProps) {
+  map(function ([{ base: { type: value } }]) {
     return {
       value,
     };
   }),
-  map(function ([{ value }, props]: readonly [EditCakeBaseTypeProps, EditCakeBaseProps]) {
+  map(function ([{ value }, props]) {
     return {
       ...props,
       base: defaultCakeBase(value),
@@ -103,14 +108,19 @@ function createEditCakeBaseSubtypeInCakeBaseComponent<T extends CakeBaseType, S 
     Component: ReactiveComponent<EditCakeBaseSubtypeProps<S>>,
     type: T,
 ) {
-  return adaptReactiveComponent<EditCakeBaseSubtypeInCakeBaseProps<T, S>, EditCakeBaseSubtypeProps<S>>(
+  return adaptReactiveComponent<
+    EditCakeBaseSubtypeInCakeBaseProps<T, S>,
+    EditCakeBaseSubtypeProps<S>,
+    EditCakeBaseSubtypeInCakeBaseProps<T, S>,
+    EditCakeBaseSubtypeProps<S>
+  >(
     Component,
-    map(function ({ base: { subtype } }: EditCakeBaseSubtypeInCakeBaseProps<T, S>) {
+    map(function ([{ base: { subtype } }]) {
       return {
         value: subtype,
       };
     }),
-    map(function ([{ value }]: readonly [EditCakeBaseSubtypeProps<S>, EditCakeBaseSubtypeInCakeBaseProps<T, S>]) {
+    map(function ([{ value }]) {
       return {
         base: {
           type,

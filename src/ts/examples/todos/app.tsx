@@ -13,16 +13,14 @@ import {
   useObserverPipe,
   useReactiveProps,
 } from 'base/component/reactive';
-import {
-  createReactiveStatefulAdapter,
-  createStatefulComponent,
-} from 'base/component/stateful';
+import { createStatefulComponent } from 'base/component/stateful';
 import { UnreachableError } from 'base/errors';
 import type { Defines } from 'base/types';
 import { exists } from 'base/types';
 import type {
   ChangeEvent,
   Key,
+  ReactNode,
 } from 'react';
 import {
   memo,
@@ -69,11 +67,19 @@ const TodoAddItem = toReactiveComponent(function ({
       text: e.target.value,
     });
   }, [events]);
+  const onEnter = useCallback(function (e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      events.next({
+        type: 'add',
+      });
+    }
+  }, [events]);
   return (
     <div>
       <input
         type="text"
         onChange={onEdit}
+        onKeyDown={onEnter}
         value={text}
       />
       <button onClick={onAdd}>Add</button>
@@ -146,7 +152,7 @@ type ListProps<T, E extends Eventless | undefined> = {
 function List<T extends { id: K }, E extends Eventless | undefined, K extends Key = T['id']>({
   props,
   events,
-}: ReactiveComponentProps<ListProps<T, E>, Defines<E, ListEvents<NonNullable<E>, K>>>) {
+}: ReactiveComponentProps<ListProps<T, E>, Defines<E, ListEvents<E, K>>>): ReactNode {
   const p = useReactiveProps(props);
   const ItemComponent = p?.ItemComponent;
   const ListItemComponent = useCallback(function ({
@@ -154,7 +160,6 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
   }: {
     id: K,
   }) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     // eslint can't handle useMemo in useCallback
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const itemProps = useMemo(function () {
@@ -175,7 +180,7 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
     // eslint can't handle useMemo in useCallback
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const itemEvents = useObserverPipe<ListEvents<E, K>, E>(
-      // unfortunately the dependencies do not get reduced so we end up with Defines<Defines<E, Observer<Defines<E, Event>>
+      // unfortunately the dependencies do not get reduced so we end up with Observer<Defines<E, Event>
       // where we want Defines<E, Observer<Event>>
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
       events as any,
@@ -280,7 +285,7 @@ const TodoList3 = adaptReactiveComponent<
   ListEvents<TodoLineItemEvents, number>
 >(
   TodoList2,
-  map(function (props) {
+  map(function ([props]) {
     return props;
   }),
   map(function ([{
@@ -324,7 +329,7 @@ const TodoList3 = adaptReactiveComponent<
   }),
 );
 
-const TodoAddItem1 = createReactiveStatefulAdapter<
+const TodoAddItem1 = adaptReactiveComponent<
   TodoListProps,
   TodoAddItemProps,
   TodoListProps,
@@ -332,10 +337,6 @@ const TodoAddItem1 = createReactiveStatefulAdapter<
   { text: string, nextId: number }
 >(
   TodoAddItem,
-  {
-    text: '',
-    nextId: 1,
-  },
   map(function ([_1, { text }]): TodoAddItemProps {
     return {
       text,
@@ -368,6 +369,10 @@ const TodoAddItem1 = createReactiveStatefulAdapter<
         throw new UnreachableError(targetEvent);
     }
   }),
+  {
+    text: '',
+    nextId: 1,
+  },
 );
 
 type TodoMasterDetailDefinition = typeof MasterDetail<TodoListProps, TodoListProps>;
@@ -382,13 +387,16 @@ const TodoMasterDetail2 = createPartialReactiveComponent<
     Detail: TodoList3,
   },
 );
-const TodoMasterDetail3 = createStatefulComponent(TodoMasterDetail2, {
-  items: [{
-    completed: false,
-    id: 0,
-    text: 'test',
-  }],
-});
+const TodoMasterDetail3 = createStatefulComponent(
+  TodoMasterDetail2,
+  {
+    items: [{
+      completed: false,
+      id: 0,
+      text: 'test',
+    }],
+  },
+);
 
 export function App() {
   return (
