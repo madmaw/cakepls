@@ -2,6 +2,7 @@ import type {
   EmittingComponentProps,
   Eventless,
 } from 'base/component/emitting';
+import { useObserverPipe } from 'base/component/observable';
 import { createPartialReactiveComponent } from 'base/component/partial';
 import type {
   ReactiveComponent,
@@ -10,27 +11,21 @@ import type {
 import {
   adaptReactiveComponent,
   toReactiveComponent,
-  useObserverPipe,
   useReactiveProps,
 } from 'base/component/reactive';
 import { createStatefulComponent } from 'base/component/stateful';
 import { UnreachableError } from 'base/errors';
 import type { Defines } from 'base/types';
-import { exists } from 'base/types';
 import type {
   ChangeEvent,
   Key,
   ReactNode,
 } from 'react';
 import {
-  memo,
   useCallback,
   useMemo,
 } from 'react';
-import {
-  filter,
-  map,
-} from 'rxjs';
+import { map } from 'rxjs';
 
 type TodoContent = {
   readonly text: string,
@@ -97,14 +92,27 @@ type TodoLineItemEvents = {
   readonly text: string,
 };
 
+const enum TodoLineItemState {
+  Ok,
+  Dirty,
+  Saving,
+  Error,
+}
+
+type TodoLineItemProps = {
+  readonly item: TodoContent,
+  readonly state: TodoLineItemState,
+};
+
 const TodoLineItem = toReactiveComponent(function ({
   // eslint-disable-next-line destructuring-newline/object-property-newline
   item: {
     completed,
     text,
   },
+  state,
   events,
-}: EmittingComponentProps<{ readonly item: TodoContent }, TodoLineItemEvents>) {
+}: EmittingComponentProps<TodoLineItemProps, TodoLineItemEvents>) {
   const onDelete = useCallback(function () {
     events.next({
       type: 'delete',
@@ -134,7 +142,10 @@ const TodoLineItem = toReactiveComponent(function ({
         value={text}
         onChange={onEdit}
       />
-      <button onClick={onDelete}>Delete</button>
+      <button
+        onClick={onDelete}
+      >Delete</button>
+      <> {state}</>
     </div>
   );
 });
@@ -146,7 +157,7 @@ type ListEvents<E, K> = {
 
 type ListProps<T, E extends Eventless | undefined> = {
   readonly items: readonly T[],
-  readonly ItemComponent: ReactiveComponent<{ readonly item: Omit<T, 'id'> }, E>,
+  readonly ItemComponent: ReactiveComponent<Omit<T, 'id'>, E>,
 };
 
 function List<T extends { id: K }, E extends Eventless | undefined, K extends Key = T['id']>({
@@ -156,8 +167,10 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
   const p = useReactiveProps(props);
   const ItemComponent = p?.ItemComponent;
   const ListItemComponent = useCallback(function ({
+    index,
     id,
   }: {
+    index: number,
     id: K,
   }) {
     // eslint can't handle useMemo in useCallback
@@ -165,18 +178,12 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
     const itemProps = useMemo(function () {
       return props.pipe(
         map(function ({ items }) {
-          return items.find(function (item) {
-            return item.id === id;
-          });
-        }),
-        filter(exists),
-        map(function (item) {
-          return { item };
+          return items[index];
         }),
       );
       // "props" should cause a recompute, but the linter seems to be ignoring it
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props, id]);
+    }, [props, index]);
     // eslint can't handle useMemo in useCallback
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const itemEvents = useObserverPipe<ListEvents<E, K>, E>(
@@ -210,9 +217,10 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
   } = p;
   return (
     <div>
-      {items.map(function (item) {
+      {items.map(function (item, index) {
         return (
           <ListItemComponent
+            index={index}
             id={item.id}
             key={item.id}
           />
@@ -257,19 +265,20 @@ function MasterDetail<Props extends Eventless, Events extends Eventless | undefi
   );
 }
 
-type TodoListProps = { items: readonly Todo[] };
+type TodoListProps = { readonly items: readonly Todo[] };
 
-type TodoListDefinition = typeof List<Todo, TodoLineItemEvents>;
+type TodoLineItemPropsWithId = TodoLineItemProps & { id: number };
+type TodoLineItemListProps = { readonly items: readonly TodoLineItemPropsWithId[] };
+type TodoLineItemListDefinition = typeof List<TodoLineItemPropsWithId, TodoLineItemEvents>;
+
 // Todo list with all parameters
-const TodoList1 = memo<TodoListDefinition>(List);
+const TodoList1: TodoLineItemListDefinition = List;
 // curry ItemComponent parameter as it will never change
 const TodoList2 = createPartialReactiveComponent<
   {
-    readonly ItemComponent: ReactiveComponent<{ readonly item: TodoContent }, TodoLineItemEvents>,
+    readonly ItemComponent: ReactiveComponent<TodoLineItemProps, TodoLineItemEvents>,
   },
-  {
-    readonly items: readonly Todo[],
-  },
+  TodoLineItemListProps,
   ListEvents<TodoLineItemEvents, number>
 >(
   TodoList1,
@@ -277,30 +286,54 @@ const TodoList2 = createPartialReactiveComponent<
     ItemComponent: TodoLineItem,
   },
 );
+
 // convert events to be homogeneous with the state
 const TodoList3 = adaptReactiveComponent<
   TodoListProps,
+  TodoLineItemListProps,
   TodoListProps,
-  TodoListProps,
-  ListEvents<TodoLineItemEvents, number>
+  ListEvents<TodoLineItemEvents, number>,
+  Readonly<Record<number, TodoLineItemState>>
 >(
   TodoList2,
-  map(function ([props]) {
-    return props;
+  map(function ([
+    {
+      items: todos,
+    },
+    state,
+  ]) {
+    const lineItems = todos.map<TodoLineItemPropsWithId>(function (item) {
+      return {
+        id: item.id,
+        item,
+        // how is this unnecessary?
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        state: state[item.id] ?? 'ok',
+      };
+    });
+    return {
+      items: lineItems,
+    };
   }),
-  map(function ([{
-    event,
-    id,
-  }, { items }]) {
+  map(function ([
+    {
+      event,
+      id,
+    },
+    {
+      items,
+    },
+    state,
+  ]) {
     switch (event.type) {
       case 'delete':
-        return {
+        return [{
           items: items.filter(function (item) {
             return item.id !== id;
           }),
-        };
+        }, state];
       case 'toggle':
-        return {
+        return [{
           items: items.map(function (item) {
             if (item.id !== id) {
               return item;
@@ -310,9 +343,9 @@ const TodoList3 = adaptReactiveComponent<
               completed: event.to,
             };
           }),
-        };
+        }, state];
       case 'edit':
-        return {
+        return [{
           items: items.map(function (item) {
             if (item.id !== id) {
               return item;
@@ -322,11 +355,12 @@ const TodoList3 = adaptReactiveComponent<
               text: event.text,
             };
           }),
-        };
+        }, state];
       default:
         throw new UnreachableError(event);
     }
   }),
+  {},
 );
 
 const TodoAddItem1 = adaptReactiveComponent<

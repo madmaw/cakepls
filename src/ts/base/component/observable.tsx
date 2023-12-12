@@ -1,12 +1,19 @@
+import type { Defines } from 'base/types';
+import { maybeDefined } from 'base/types';
 import {
   useEffect,
   useMemo,
   useState,
 } from 'react';
+import type {
+  Observer,
+  OperatorFunction,
+} from 'rxjs';
 import {
   BehaviorSubject,
   distinctUntilChanged,
   type Observable,
+  Subject,
 } from 'rxjs';
 
 import { useConstantExpression } from './constant';
@@ -48,4 +55,29 @@ export function useObservableValue<T>(observable: Observable<T>, defaultValue: T
     return subscription.unsubscribe.bind(subscription);
   }, [observable]);
   return value;
+}
+
+/**
+ * Pipe an observer rather than an observable
+ * @param observer the observer to pipe to
+ * @param operator the transformation to apply to the events to the supplied observer
+ * @returns the new observer that pipes to the given observer
+ */
+export function useObserverPipe<T, U extends {} | undefined>(
+    observer: Defines<U, Observer<T>>,
+    operator: OperatorFunction<U, T>,
+): Defines<U, Observer<NonNullable<U>>> {
+  const subject = useConstantExpression(function () {
+    return new Subject<U>();
+  });
+  useEffect(function () {
+    if (observer == null) {
+      return;
+    }
+    const subscription = subject.pipe(
+      operator,
+    ).subscribe(observer);
+    return subscription.unsubscribe.bind(subscription);
+  }, [observer, subject, operator]);
+  return maybeDefined(observer, subject);
 }

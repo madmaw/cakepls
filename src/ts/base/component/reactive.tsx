@@ -48,25 +48,6 @@ export function useReactiveProps<Props>(props: Observable<Props>): Props | null 
   return state;
 }
 
-export function useObserverPipe<T, U extends {} | undefined>(
-    observer: Defines<U, Observer<T>>,
-    operator: OperatorFunction<U, T>,
-): Defines<U, Observer<U>> {
-  const subject = useConstantExpression(function () {
-    return new Subject<U>();
-  });
-  useEffect(function () {
-    if (observer == null) {
-      return;
-    }
-    const subscription = subject.pipe(
-      operator,
-    ).subscribe(observer);
-    return subscription.unsubscribe.bind(subscription);
-  }, [observer, subject, operator]);
-  return maybeDefined(observer, subject);
-}
-
 export function toReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props>(
     Component: EmittingComponent<Props, Events>,
     initialProps?: Props,
@@ -121,21 +102,6 @@ export function fromReactiveComponent<Props extends Eventless, Events extends Ev
       />
     );
   };
-}
-
-export function ReactiveComponentAdaptor<Props extends Eventless, Events extends Eventless>({
-  Target,
-  events,
-  ...props
-}: EmittingComponentProps<Props, Events> & { readonly Target: ReactiveComponent<Props, Events> }) {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
-  const propsObservable = useObservable(props as any);
-  return (
-    <Target
-      events={events}
-      props={propsObservable}
-    />
-  );
 }
 
 // target doesn't fire events (readonly component)

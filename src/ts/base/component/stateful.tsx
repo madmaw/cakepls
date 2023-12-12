@@ -62,8 +62,3 @@ export function createStatefulComponent<
     );
   };
 }
-
-export type StatefulEvent<State, Events> = {
-  event: Events,
-  state: State,
-};
