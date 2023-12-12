@@ -45,11 +45,13 @@ type TodoAddItemEvents = {
 
 type TodoAddItemProps = {
   text: string,
+  disabled: boolean,
 }
 
 const TodoAddItem = toReactiveComponent(function ({
   events,
   text,
+  disabled,
 }: EmittingComponentProps<TodoAddItemProps, TodoAddItemEvents>) {
   const onAdd = useCallback(function () {
     events.next({
@@ -76,8 +78,12 @@ const TodoAddItem = toReactiveComponent(function ({
         onChange={onEdit}
         onKeyDown={onEnter}
         value={text}
+        disabled={disabled}
       />
-      <button onClick={onAdd}>Add</button>
+      <button
+        onClick={onAdd}
+        disabled={disabled}
+      >Add</button>
     </div>
   );
 });
@@ -374,6 +380,7 @@ const TodoAddItem1 = adaptReactiveComponent<
   map(function ([_1, { text }]): TodoAddItemProps {
     return {
       text,
+      disabled: false,
     };
   }),
   map(function ([targetEvent, { items }, {
