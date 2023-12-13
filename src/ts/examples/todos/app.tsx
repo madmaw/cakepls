@@ -15,6 +15,8 @@ import {
 } from 'base/component/reactive';
 import { createStatefulComponent } from 'base/component/stateful';
 import { UnreachableError } from 'base/errors';
+import { pause } from 'base/pause';
+import { mapAsyncGenerator } from 'base/rxjs/map_generator';
 import type { Defines } from 'base/types';
 import type {
   ChangeEvent,
@@ -189,7 +191,9 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
       );
       // "props" should cause a recompute, but the linter seems to be ignoring it
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props, index]);
+    }, [
+      props, index,
+    ]);
     // eslint can't handle useMemo in useCallback
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const itemEvents = useObserverPipe<ListEvents<E, K>, E>(
@@ -213,7 +217,9 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
         events={itemEvents}
       />
     );
-  }, [ItemComponent, props, events]);
+  }, [
+    ItemComponent, props, events,
+  ]);
 
   if (p == null) {
     return null;
@@ -333,35 +339,41 @@ const TodoList3 = adaptReactiveComponent<
   ]) {
     switch (event.type) {
       case 'delete':
-        return [{
-          items: items.filter(function (item) {
-            return item.id !== id;
-          }),
-        }, state];
+        return [
+          {
+            items: items.filter(function (item) {
+              return item.id !== id;
+            }),
+          }, state,
+        ];
       case 'toggle':
-        return [{
-          items: items.map(function (item) {
-            if (item.id !== id) {
-              return item;
-            }
-            return {
-              ...item,
-              completed: event.to,
-            };
-          }),
-        }, state];
+        return [
+          {
+            items: items.map(function (item) {
+              if (item.id !== id) {
+                return item;
+              }
+              return {
+                ...item,
+                completed: event.to,
+              };
+            }),
+          }, state,
+        ];
       case 'edit':
-        return [{
-          items: items.map(function (item) {
-            if (item.id !== id) {
-              return item;
-            }
-            return {
-              ...item,
-              text: event.text,
-            };
-          }),
-        }, state];
+        return [
+          {
+            items: items.map(function (item) {
+              if (item.id !== id) {
+                return item;
+              }
+              return {
+                ...item,
+                text: event.text,
+              };
+            }),
+          }, state,
+        ];
       default:
         throw new UnreachableError(event);
     }
@@ -369,43 +381,85 @@ const TodoList3 = adaptReactiveComponent<
   {},
 );
 
+const enum TodoAddItemState {
+  Ok,
+  Saving,
+  Error,
+}
+
 const TodoAddItem1 = adaptReactiveComponent<
   TodoListProps,
   TodoAddItemProps,
   TodoListProps,
   TodoAddItemEvents,
-  { text: string, nextId: number }
+  {
+    text: string,
+    nextId: number,
+    state: TodoAddItemState,
+  }
 >(
   TodoAddItem,
-  map(function ([_1, { text }]): TodoAddItemProps {
+  map(function ([
+    _1,
+    {
+      text,
+      state,
+    },
+  ]): TodoAddItemProps {
     return {
       text,
-      disabled: false,
+      disabled: state === TodoAddItemState.Saving,
     };
   }),
-  map(function ([targetEvent, { items }, {
-    text,
-    nextId,
-  }]) {
+  mapAsyncGenerator(async function* ([
+    targetEvent,
+    { items },
+    {
+      text,
+      nextId,
+    },
+  ]) {
     switch (targetEvent.type) {
       case 'add':
-        return [{
-          items: [...items, {
-            id: nextId,
+        yield [
+          { items },
+          {
             text,
-            completed: false,
-          }],
-        }, {
-          text: '',
-          nextId: nextId + 1,
-        }];
+            nextId,
+            state: TodoAddItemState.Saving,
+          },
+        ];
+        await pause(1000);
+        yield [
+          {
+            items: [
+              ...items,
+              {
+                id: nextId,
+                text,
+                completed: false,
+              },
+            ],
+          },
+          {
+            text: '',
+            nextId: nextId + 1,
+            state: TodoAddItemState.Ok,
+          },
+        ];
+        break;
       case 'edit':
-        return [{
-          items,
-        }, {
-          text: targetEvent.text,
-          nextId,
-        }];
+        yield [
+          {
+            items,
+          },
+          {
+            text: targetEvent.text,
+            nextId,
+            state: TodoAddItemState.Ok,
+          },
+        ];
+        break;
       default:
         throw new UnreachableError(targetEvent);
     }
@@ -413,6 +467,7 @@ const TodoAddItem1 = adaptReactiveComponent<
   {
     text: '',
     nextId: 1,
+    state: TodoAddItemState.Ok,
   },
 );
 
@@ -431,11 +486,13 @@ const TodoMasterDetail2 = createPartialReactiveComponent<
 const TodoMasterDetail3 = createStatefulComponent(
   TodoMasterDetail2,
   {
-    items: [{
-      completed: false,
-      id: 0,
-      text: 'test',
-    }],
+    items: [
+      {
+        completed: false,
+        id: 0,
+        text: 'test',
+      },
+    ],
   },
 );
 

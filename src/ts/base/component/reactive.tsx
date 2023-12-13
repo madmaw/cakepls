@@ -38,7 +38,9 @@ export type ReactiveComponentProps<Props extends Eventless, Events extends Event
 export type ReactiveComponent<Props extends Eventless, Events extends Eventless | undefined = Props> = ComponentType<ReactiveComponentProps<Props, Events>>;
 
 export function useReactiveProps<Props>(props: Observable<Props>): Props | null {
-  const [state, setState] = useState<Props | null>(null);
+  const [
+    state, setState,
+  ] = useState<Props | null>(null);
   useEffect(function () {
     const subscription = props.subscribe(function (state) {
       setState(state);
@@ -56,7 +58,9 @@ export function toReactiveComponent<Props extends Eventless, Events extends Even
     props,
     events,
   }: ReactiveComponentProps<Props, Events>) {
-    const [state, setState] = useState<Props | undefined>(initialProps);
+    const [
+      state, setState,
+    ] = useState<Props | undefined>(initialProps);
 
     useEffect(function () {
       const subscription = props
@@ -179,24 +183,36 @@ export function adaptReactiveComponent<
     });
 
     const targetProps = useMemo(function () {
-      return combineLatest([sourceProps, states]).pipe(
+      return combineLatest([
+        sourceProps, states,
+      ]).pipe(
         propsOperator,
       );
-    }, [sourceProps, states]);
+    }, [
+      sourceProps, states,
+    ]);
     const targetEventsAndSourcePropsAndStates = useMemo(function (): Defines<TargetEvents, Observable<[TargetEvents, SourceProps, States]>> {
       return maybeDefinedExpression(
         targetEvents,
         function (targetEvents) {
           return targetEvents.pipe(
-            withLatestFrom(combineLatest([sourceProps, states])),
+            withLatestFrom(combineLatest([
+              sourceProps, states,
+            ])),
             // convert from [a, [b, c]] to [a, b, c]
-            map(function ([a, b]) {
-              return [a, ...b] as const;
+            map(function ([
+              a, b,
+            ]) {
+              return [
+                a, ...b,
+              ] as const;
             }),
           );
         },
       );
-    }, [targetEvents, sourceProps, states]);
+    }, [
+      targetEvents, sourceProps, states,
+    ]);
 
     useEffect(function () {
       if (eventsOperator && targetEventsAndSourcePropsAndStates) {
@@ -206,8 +222,10 @@ export function adaptReactiveComponent<
               let sourceEvent: SourceEvents | undefined;
               let state: States | undefined;
               if (Array.isArray(sourceEventAndOrState)) {
-              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-                [sourceEvent, state] = sourceEventAndOrState as (readonly [SourceEvents, States]);
+                [
+                  sourceEvent, state,
+                  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                ] = sourceEventAndOrState as (readonly [SourceEvents, States]);
               } else {
                 if (initialState != null) {
                   // must be a new state
@@ -230,7 +248,9 @@ export function adaptReactiveComponent<
 
       }
       return;
-    }, [targetEventsAndSourcePropsAndStates, sourceEvents, states]);
+    }, [
+      targetEventsAndSourcePropsAndStates, sourceEvents, states,
+    ]);
 
     return (
       <Target
