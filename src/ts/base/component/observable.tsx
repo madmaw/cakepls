@@ -35,7 +35,9 @@ export function useObservable<T>(t: T) {
   }, [subject]);
   useEffect(function () {
     subject.next(t);
-  }, [subject, t]);
+  }, [
+    subject, t,
+  ]);
   return observable;
 }
 
@@ -47,7 +49,9 @@ export function useObservable<T>(t: T) {
  * @returns the latest value emitted by the observable
  */
 export function useObservableValue<T>(observable: Observable<T>, defaultValue: T) {
-  const [value, setValue] = useState(defaultValue);
+  const [
+    value, setValue,
+  ] = useState(defaultValue);
   useEffect(function () {
     const subscription = observable.subscribe(function (v) {
       setValue(v);
@@ -78,6 +82,8 @@ export function useObserverPipe<T, U extends {} | undefined>(
       operator,
     ).subscribe(observer);
     return subscription.unsubscribe.bind(subscription);
-  }, [observer, subject, operator]);
+  }, [
+    observer, subject, operator,
+  ]);
   return maybeDefined(observer, subject);
 }

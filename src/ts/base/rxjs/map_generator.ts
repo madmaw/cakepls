@@ -4,18 +4,29 @@ import {
 } from 'rxjs';
 
 // TODO is there some built in rxjs function that does this already? Because there should be
-export function mapAsyncGenerator<T, R>(generator: (value: T, index: number) => AsyncGenerator<R, void, boolean>): OperatorFunction<T, R> {
+export function mapAsyncGenerator<T, R>(
+    f: (value: T, index: number) => AsyncGenerator<R, void, boolean>,
+): OperatorFunction<T, R> {
   return (source) => {
     return new Observable<R>((subscriber) => {
       let index = 0;
+      let inProgress = false;
       source.subscribe({
         async next(value) {
-          // TODO block any other next calls until this one is done
-          const gen = generator(value, index++);
-          let result = await gen.next();
-          while (!result.done) {
-            subscriber.next(result.value);
-            result = await gen.next();
+          // discard any events happening while this is active
+          if (!inProgress) {
+            try {
+              inProgress = true;
+              const generator = f(value, index++);
+              let result = await generator.next();
+              while (!result.done) {
+                subscriber.next(result.value);
+                result = await generator.next();
+              }
+              // TODO error handling?
+            } finally {
+              inProgress = false;
+            }
           }
         },
         error(err) {

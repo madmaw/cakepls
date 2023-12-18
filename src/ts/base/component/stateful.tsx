@@ -44,7 +44,9 @@ export function createStatefulComponent<
     // watch for events coming from the stateless component, combine those with the passed props
     // and expose as props
     const props = useMemo(function () {
-      return combineLatest([ps, events]).pipe(
+      return combineLatest([
+        ps, events,
+      ]).pipe(
         map(function ([p, event]: readonly [P, State]) {
           return {
             ...event,
@@ -52,7 +54,9 @@ export function createStatefulComponent<
           };
         }),
       );
-    }, [ps, events]);
+    }, [
+      ps, events,
+    ]);
     // render the current state
     return (
       <MemoisedStateless

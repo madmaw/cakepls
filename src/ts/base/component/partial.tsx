@@ -55,7 +55,9 @@ export function usePartialComponent<CurriedProps, ExposedProps = {}>(
         {...curriedProps}
       />
     );
-  }, [MemoizedComponent, curriedPropsStream, defaultCurriedProps]);
+  }, [
+    MemoizedComponent, curriedPropsStream, defaultCurriedProps,
+  ]);
 }
 
 export function createPartialReactiveComponent<

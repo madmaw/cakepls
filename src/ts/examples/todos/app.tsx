@@ -242,6 +242,7 @@ function List<T extends { id: K }, E extends Eventless | undefined, K extends Ke
   );
 }
 
+// TODO make non-generic
 type MasterDetailProps<Props extends Eventless, Events extends Eventless | undefined> = {
   Master: ReactiveComponent<Props, Events>,
   Detail: ReactiveComponent<Props, Events>
@@ -471,20 +472,18 @@ const TodoAddItem1 = adaptReactiveComponent<
   },
 );
 
-type TodoMasterDetailDefinition = typeof MasterDetail<TodoListProps, TodoListProps>;
-const TodoMasterDetail1: TodoMasterDetailDefinition = MasterDetail;
-const TodoMasterDetail2 = createPartialReactiveComponent<
+const TodoMasterDetail1 = createPartialReactiveComponent<
   Pick<MasterDetailProps<TodoListProps, TodoListProps>, 'Master' | 'Detail'>,
   TodoListProps
 > (
-  TodoMasterDetail1,
+  MasterDetail,
   {
     Master: TodoAddItem1,
     Detail: TodoList3,
   },
 );
-const TodoMasterDetail3 = createStatefulComponent(
-  TodoMasterDetail2,
+const TodoMasterDetail2 = createStatefulComponent(
+  TodoMasterDetail1,
   {
     items: [
       {
@@ -498,6 +497,6 @@ const TodoMasterDetail3 = createStatefulComponent(
 
 export function App() {
   return (
-    <TodoMasterDetail3/>
+    <TodoMasterDetail2/>
   );
 }
