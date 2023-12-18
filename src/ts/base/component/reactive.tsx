@@ -96,8 +96,8 @@ export function fromReactiveComponent<Props extends Eventless, Events extends Ev
 
     // Props extends Eventless === Omit<Props extends Eventless & { events: x }, 'events'>
     // TODO is there a way of defining the types that removes the need for this cast?
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
-    const propsObservable = useObservable(props as any);
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const propsObservable = useObservable(props as Props);
 
     return (
       <Component

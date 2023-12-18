@@ -24,7 +24,7 @@ import { useConstantExpression } from './constant';
  * @returns the observable that emits the given value
  */
 export function useObservable<T>(t: T) {
-  const subject = useConstantExpression(function () {
+  const subject = useConstantExpression<Subject<T>>(function () {
     return new BehaviorSubject<T>(t);
   });
   const observable = useMemo(function () {

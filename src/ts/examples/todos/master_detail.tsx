@@ -3,8 +3,8 @@ import { useReactiveProps } from 'base/component/reactive';
 import type { ComponentType } from 'react';
 
 export type MasterDetailProps = {
-  Master: ComponentType,
-  Detail: ComponentType
+  readonly Master: ComponentType,
+  readonly Detail: ComponentType
 };
 
 /**
