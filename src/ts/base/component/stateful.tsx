@@ -30,7 +30,7 @@ export function createStatefulComponent<
   P = {},
 >(
     Stateless: ReactiveComponent<State & P, State>,
-    initialState: State,
+    initialState: State | BehaviorSubject<State>,
 ): ComponentType<P> {
   // memoise the stateless component so we don't render unnecessarily
   const MemoisedStateless = safeMemo(Stateless);
@@ -39,7 +39,10 @@ export function createStatefulComponent<
     const ps = useObservable(p);
     // create a Subject to store the incoming events
     const events = useConstantExpression(function (): Defines<State, Subject<State>> {
-      return alwaysDefined<State, Subject<State>>(new BehaviorSubject<State>(initialState));
+      const subject = initialState instanceof BehaviorSubject
+        ? initialState
+        : new BehaviorSubject<State>(initialState);
+      return alwaysDefined<State, Subject<State>>(subject);
     });
     // watch for events coming from the stateless component, combine those with the passed props
     // and expose as props

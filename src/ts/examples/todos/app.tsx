@@ -1,42 +1,33 @@
-import type {
-  EmittingComponentProps,
-  Eventless,
-} from 'base/component/emitting';
-import { useObserverPipe } from 'base/component/observable';
+import { useConstantExpression } from 'base/component/constant';
+import type { EmittingComponentProps } from 'base/component/emitting';
 import { createPartialReactiveComponent } from 'base/component/partial';
-import type {
-  ReactiveComponent,
-  ReactiveComponentProps,
-} from 'base/component/reactive';
+import type { ReactiveComponent } from 'base/component/reactive';
 import {
   adaptReactiveComponent,
   toReactiveComponent,
-  useReactiveProps,
 } from 'base/component/reactive';
-import { createStatefulComponent } from 'base/component/stateful';
 import { UnreachableError } from 'base/errors';
 import { pause } from 'base/pause';
 import { mapAsyncGenerator } from 'base/rxjs/map_generator';
-import type { Defines } from 'base/types';
-import type {
-  ChangeEvent,
-  Key,
-  ReactNode,
-} from 'react';
+import type { ChangeEvent } from 'react';
+import { useCallback } from 'react';
+import type { Subject } from 'rxjs';
 import {
-  useCallback,
-  useMemo,
-} from 'react';
-import { map } from 'rxjs';
+  BehaviorSubject,
+  map,
+} from 'rxjs';
 
-type TodoContent = {
-  readonly text: string,
-  readonly completed: boolean,
-};
+import type { ListEvents } from './list';
+import { List } from './list';
+import type { MasterDetailProps } from './master_detail';
+import { MasterDetail } from './master_detail';
+import type {
+  Todo,
+  TodoContent,
+} from './service';
+import { TodoService } from './service';
 
-type Todo = TodoContent & {
-  id: number,
-};
+const service = new TodoService();
 
 type TodoAddItemEvents = {
   type: 'add',
@@ -158,126 +149,6 @@ const TodoLineItem = toReactiveComponent(function ({
   );
 });
 
-type ListEvents<E, K> = {
-  readonly event: E,
-  readonly id: K,
-};
-
-type ListProps<T, E extends Eventless | undefined> = {
-  readonly items: readonly T[],
-  readonly ItemComponent: ReactiveComponent<Omit<T, 'id'>, E>,
-};
-
-function List<T extends { id: K }, E extends Eventless | undefined, K extends Key = T['id']>({
-  props,
-  events,
-}: ReactiveComponentProps<ListProps<T, E>, Defines<E, ListEvents<E, K>>>): ReactNode {
-  const p = useReactiveProps(props);
-  const ItemComponent = p?.ItemComponent;
-  const ListItemComponent = useCallback(function ({
-    index,
-    id,
-  }: {
-    index: number,
-    id: K,
-  }) {
-    // eslint can't handle useMemo in useCallback
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const itemProps = useMemo(function () {
-      return props.pipe(
-        map(function ({ items }) {
-          return items[index];
-        }),
-      );
-      // "props" should cause a recompute, but the linter seems to be ignoring it
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-      props, index,
-    ]);
-    // eslint can't handle useMemo in useCallback
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const itemEvents = useObserverPipe<ListEvents<E, K>, E>(
-      // unfortunately the dependencies do not get reduced so we end up with Observer<Defines<E, Event>
-      // where we want Defines<E, Observer<Event>>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
-      events as any,
-      map(function (event: E): ListEvents<E, K> {
-        return {
-          event,
-          id,
-        };
-      }),
-    );
-    if (ItemComponent == null) {
-      return null;
-    }
-    return (
-      <ItemComponent
-        props={itemProps}
-        events={itemEvents}
-      />
-    );
-  }, [
-    ItemComponent, props, events,
-  ]);
-
-  if (p == null) {
-    return null;
-  }
-  const {
-    items,
-  } = p;
-  return (
-    <div>
-      {items.map(function (item, index) {
-        return (
-          <ListItemComponent
-            index={index}
-            id={item.id}
-            key={item.id}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-// TODO make non-generic
-type MasterDetailProps<Props extends Eventless, Events extends Eventless | undefined> = {
-  Master: ReactiveComponent<Props, Events>,
-  Detail: ReactiveComponent<Props, Events>
-} & Props;
-
-function MasterDetail<Props extends Eventless, Events extends Eventless | undefined> ({
-  props,
-  events,
-}: ReactiveComponentProps<MasterDetailProps<Props, Events>, Events>) {
-  const p = useReactiveProps(props);
-  if (p == null) {
-    return null;
-  }
-  const {
-    Master,
-    Detail,
-  } = p;
-  return (
-    <div>
-      <div>
-        <Master
-          props={props}
-          events={events}
-        />
-      </div>
-      <div>
-        <Detail
-          props={props}
-          events={events}
-        />
-      </div>
-    </div>
-  );
-}
-
 type TodoListProps = { readonly items: readonly Todo[] };
 
 type TodoLineItemPropsWithId = TodoLineItemProps & { id: number };
@@ -319,9 +190,9 @@ const TodoList3 = adaptReactiveComponent<
       return {
         id: item.id,
         item,
-        // how is this unnecessary?
+        // eslint completely misunderstanding the implications of having a numeric key in a record here
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        state: state[item.id] ?? 'ok',
+        state: state[item.id] ?? TodoLineItemState.Ok,
       };
     });
     return {
@@ -471,32 +342,48 @@ const TodoAddItem1 = adaptReactiveComponent<
     state: TodoAddItemState.Ok,
   },
 );
-
-const TodoMasterDetail1 = createPartialReactiveComponent<
-  Pick<MasterDetailProps<TodoListProps, TodoListProps>, 'Master' | 'Detail'>,
-  TodoListProps
-> (
-  MasterDetail,
-  {
-    Master: TodoAddItem1,
-    Detail: TodoList3,
-  },
-);
-const TodoMasterDetail2 = createStatefulComponent(
-  TodoMasterDetail1,
-  {
-    items: [
-      {
-        completed: false,
-        id: 0,
-        text: 'test',
-      },
-    ],
-  },
-);
-
 export function App() {
+  const todoList = useConstantExpression<Subject<TodoListProps>>(function () {
+    return new BehaviorSubject<TodoListProps>({
+      items: [
+        {
+          completed: false,
+          id: 0,
+          text: 'test',
+        },
+      ],
+    });
+  });
+
+  const TodoList4 = useCallback(function () {
+    return (
+      <TodoList3
+        props={todoList}
+        events={todoList}
+      />
+    );
+  }, [todoList]);
+  const TodoAddItem2 = useCallback(function () {
+    return (
+      <TodoAddItem1
+        props={todoList}
+        events={todoList}
+      />
+    );
+  }, [todoList]);
+
+  const masterDetailUi = useConstantExpression<Subject<MasterDetailProps>>(function () {
+    return new BehaviorSubject<MasterDetailProps>({
+      Master: TodoAddItem2,
+      Detail: TodoList4,
+    });
+  });
+
   return (
-    <TodoMasterDetail2/>
+    <MasterDetail
+      props={masterDetailUi}
+      // TODO optional
+      events={undefined}
+    />
   );
 }
