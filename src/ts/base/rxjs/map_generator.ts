@@ -5,7 +5,7 @@ import {
 
 // TODO is there some built in rxjs function that does this already? Because there should be
 export function mapAsyncGenerator<T, R>(
-    f: (value: T, index: number) => AsyncGenerator<R, void, boolean>,
+    f: (value: T, index: number) => AsyncGenerator<R, void, void>,
 ): OperatorFunction<T, R> {
   return (source) => {
     return new Observable<R>((subscriber) => {

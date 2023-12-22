@@ -42,8 +42,8 @@ export function createDefinesFactory<A, B, C, D>(factory: (c: NonNullable<C>, d?
 //     ? Defines<C | D, B>
 //     : B;
 
-export type Defines<A, B> = A extends undefined
-  ? undefined
+export type Defines<A, B, C = undefined> = A extends undefined
+  ? C
   : B;
 
 export type Defined<B> = B extends Defines<unknown, infer C> ? C : B;
@@ -64,6 +64,15 @@ export function maybeDefined<A extends {} | undefined, B>(a: A | Defines<A, unkn
     : undefined;
 }
 
+export function eitherDefined<A extends {} | undefined, B, C>(a: A, b: B, c: C): Defines<A, B, C> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return a != null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
+    ? b as any
+    : c;
+
+}
+
 export function maybeDefinedExpression<R, A, B>(a: Defines<A, B>, f: (b: B) => R): Defines<A, R> {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/no-unsafe-return
   return a != null
@@ -76,6 +85,11 @@ export function alwaysDefined<A extends {}, B>(b: B): Defines<A, B> {
   // unfortunately Typescript doesn't seem to be able to infer that A is always defined
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any
   return b as any;
+}
+
+export function thisOrThat<A extends {} | undefined, This, That> (a: A, ths: This, tht: That): A extends undefined ? This : That {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-return
+  return (a != null ? ths : tht) as any;
 }
 
 export function exists<T>(t: T | undefined | null): t is NonNullable<T> {
